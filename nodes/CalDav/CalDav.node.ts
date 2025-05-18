@@ -16,6 +16,8 @@ import { eventOperations, eventFields } from './descriptions/event';
 
 import * as calendarActions from './actions/calendar';
 import * as eventActions from './actions/event';
+import { getNextcloudHeaders, formatNextcloudEvent, parseNextcloudResponse } from './helpers/nextcloud';
+import { ICalendarCreate, ICalendarResponse } from './interfaces/calendar';
 
 export class CalDav implements INodeType {
     description: INodeTypeDescription = {
@@ -25,7 +27,7 @@ export class CalDav implements INodeType {
         group: ['transform'],
         version: 1,
         subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-        description: 'Verwalten Sie Ihre Kalender und Termine einfach und effizient',
+        description: 'Verwalten Sie Ihre Kalender und Termine mit Nextcloud CalDAV',
         defaults: {
             name: 'CalDAV',
         },
@@ -36,7 +38,6 @@ export class CalDav implements INodeType {
                 name: 'calDavBasicAuth',
                 required: true,
                 displayName: 'CalDAV Zugangsdaten',
-                description: 'Ihre Anmeldedaten für den CalDAV-Server'
             },
         ],
         usableAsTool: true,
@@ -49,7 +50,7 @@ export class CalDav implements INodeType {
                     {
                         name: 'Kalender',
                         value: 'calendar',
-                        description: 'Kalender erstellen, bearbeiten und verwalten'
+                        description: 'Kalender erstellen und verwalten'
                     },
                     {
                         name: 'Termin',
@@ -58,9 +59,64 @@ export class CalDav implements INodeType {
                     }
                 ],
                 default: 'calendar',
-                noDataExpression: true,
                 required: true,
-                description: 'Wählen Sie, ob Sie mit Kalendern oder Terminen arbeiten möchten'
+            },
+            // Nextcloud-spezifische Einstellungen
+            {
+                displayName: 'Nextcloud-Einstellungen',
+                name: 'nextcloudSettings',
+                type: 'collection',
+                placeholder: 'Nextcloud-Einstellungen hinzufügen',
+                default: {},
+                options: [
+                    {
+                        displayName: 'Export-Buttons ausblenden',
+                        name: 'hideEventExport',
+                        type: 'boolean',
+                        default: false,
+                        description: 'Blendet die Export-Buttons in der Benutzeroberfläche aus',
+                    },
+                    {
+                        displayName: 'Einladungen senden',
+                        name: 'sendInvitations',
+                        type: 'boolean',
+                        default: true,
+                        description: 'Aktiviert das Senden von Einladungen an Teilnehmer',
+                    },
+                    {
+                        displayName: 'Benachrichtigungen aktivieren',
+                        name: 'enableNotifications',
+                        type: 'boolean',
+                        default: true,
+                        description: 'Aktiviert Benachrichtigungen für Termine',
+                    },
+                    {
+                        displayName: 'Push-Benachrichtigungen',
+                        name: 'enablePushNotifications',
+                        type: 'boolean',
+                        default: true,
+                        description: 'Aktiviert Push-Benachrichtigungen für Termine',
+                    },
+                    {
+                        displayName: 'Erinnerungstyp erzwingen',
+                        name: 'forceEventAlarmType',
+                        type: 'options',
+                        options: [
+                            {
+                                name: 'E-Mail',
+                                value: 'EMAIL',
+                                description: 'Erinnerungen per E-Mail senden',
+                            },
+                            {
+                                name: 'Benachrichtigung',
+                                value: 'DISPLAY',
+                                description: 'Erinnerungen als Systembenachrichtigung anzeigen',
+                            },
+                        ],
+                        default: 'DISPLAY',
+                        description: 'Legt den Typ der Terminerinnerungen fest',
+                    },
+                ],
             },
             ...calendarOperations,
             ...calendarFields,
@@ -85,117 +141,68 @@ export class CalDav implements INodeType {
 
     async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
         const items = this.getInputData();
-        const returnData: IDataObject[] = [];
+        const returnData: INodeExecutionData[] = [];
         const resource = this.getNodeParameter('resource', 0) as string;
         const operation = this.getNodeParameter('operation', 0) as string;
+        const nextcloudSettings = this.getNodeParameter('nextcloudSettings', 0, {}) as IDataObject;
 
         for (let i = 0; i < items.length; i++) {
             try {
                 if (resource === 'calendar') {
+                    // Kalenderoperationen
                     if (operation === 'create') {
-                        const name = this.getNodeParameter('name', i) as string;
-                        const additionalFields = this.getNodeParameter('additionalFields', i) as IDataObject;
-
-                        const data = {
-                            name,
-                            timezone: additionalFields.timezone as string,
-                        };
-
-                        const response = await calendarActions.createCalendar(this, data);
-                        returnData.push(response);
-
+                        const calendarData = this.getNodeParameter('calendarFields', i) as ICalendarCreate;
+                        const response = await calendarActions.createCalendar(this, calendarData);
+                        returnData.push({ json: response });
                     } else if (operation === 'delete') {
-                        const name = this.getNodeParameter('name', i) as string;
-
-                        const response = await calendarActions.deleteCalendar(this, name);
-                        returnData.push(response);
-
+                        const calendarName = this.getNodeParameter('name', i) as string;
+                        const response = await calendarActions.deleteCalendar(this, calendarName);
+                        returnData.push({ json: response });
                     } else if (operation === 'getAll') {
-                        const calendars = await calendarActions.getCalendars(this);
-                        returnData.push(...calendars);
+                        const response = await calendarActions.getCalendars(this);
+                        returnData.push({ json: { calendars: response } });
                     }
-
                 } else if (resource === 'event') {
+                    // Terminoperationen mit Nextcloud-Anpassungen
                     if (operation === 'create') {
-                        const calendarName = this.getNodeParameter('calendarName', i) as string;
-                        const title = this.getNodeParameter('title', i) as string;
-                        const start = this.getNodeParameter('start', i) as string;
-                        const end = this.getNodeParameter('end', i) as string;
-                        const additionalFields = this.getNodeParameter('additionalFields', i) as IDataObject;
-
-                        const eventData: IDataObject = {
-                            calendarName,
-                            title,
-                            start,
-                            end,
-                        };
-
-                        if (additionalFields.description) {
-                            eventData.description = additionalFields.description;
-                        }
-
-                        if (additionalFields.location) {
-                            eventData.location = additionalFields.location;
-                        }
-
-                        if (additionalFields.attendees) {
-                            const attendeesData = additionalFields.attendees as IDataObject;
-                            eventData.attendees = attendeesData.attendeeFields;
-                        }
-
-                        const response = await eventActions.createEvent(this, eventData as any);
-                        returnData.push(response);
-
+                        const eventData = this.getNodeParameter('eventFields', i) as IDataObject;
+                        const formattedEvent = formatNextcloudEvent(eventData);
+                        const response = await eventActions.createEvent(this, formattedEvent);
+                        returnData.push({ json: parseNextcloudResponse(response) });
                     } else if (operation === 'delete') {
                         const calendarName = this.getNodeParameter('calendarName', i) as string;
                         const eventId = this.getNodeParameter('eventId', i) as string;
-
                         const response = await eventActions.deleteEvent(this, calendarName, eventId);
-                        returnData.push(response);
-
+                        returnData.push({ json: response });
                     } else if (operation === 'get') {
                         const calendarName = this.getNodeParameter('calendarName', i) as string;
                         const eventId = this.getNodeParameter('eventId', i) as string;
-
-                        const event = await eventActions.getEvent(this, calendarName, eventId);
-                        returnData.push(event);
-
+                        const response = await eventActions.getEvent(this, calendarName, eventId);
+                        returnData.push({ json: parseNextcloudResponse(response) });
                     } else if (operation === 'getAll') {
                         const calendarName = this.getNodeParameter('calendarName', i) as string;
                         const filters = this.getNodeParameter('filters', i) as IDataObject;
-
-                        const events = await eventActions.getEvents(this, calendarName, filters.start as string, filters.end as string);
-                        returnData.push(...events);
-
+                        const response = await eventActions.getEvents(this, calendarName, filters);
+                        const parsedEvents = response.map(event => parseNextcloudResponse(event));
+                        returnData.push({ json: { events: parsedEvents } });
                     } else if (operation === 'update') {
                         const calendarName = this.getNodeParameter('calendarName', i) as string;
                         const eventId = this.getNodeParameter('eventId', i) as string;
-                        const updateFields = this.getNodeParameter('updateFields', i) as IDataObject;
-
-                        const eventData: IDataObject = {
-                            calendarName,
-                            eventId,
-                            ...updateFields,
-                        };
-
-                        if (updateFields.attendees) {
-                            const attendeesData = updateFields.attendees as IDataObject;
-                            eventData.attendees = attendeesData.attendeeFields;
-                        }
-
-                        const response = await eventActions.updateEvent(this, eventData as any);
-                        returnData.push(response);
+                        const eventData = this.getNodeParameter('updateFields', i) as IDataObject;
+                        const formattedEvent = formatNextcloudEvent(eventData);
+                        const response = await eventActions.updateEvent(this, calendarName, eventId, formattedEvent);
+                        returnData.push({ json: parseNextcloudResponse(response) });
                     }
                 }
             } catch (error) {
                 if (this.continueOnFail()) {
-                    returnData.push({ error: error.message });
+                    returnData.push({ json: { error: error.message } });
                     continue;
                 }
                 throw error;
             }
         }
 
-        return [this.helpers.returnJsonArray(returnData)];
+        return [returnData];
     }
 }
