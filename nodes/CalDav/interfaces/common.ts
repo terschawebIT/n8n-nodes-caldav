@@ -1,4 +1,4 @@
-import { IExecuteFunctions, ILoadOptionsFunctions } from 'n8n-core';
+import { IExecuteFunctions, ILoadOptionsFunctions } from 'n8n-workflow';
 
 export type CalDavFunction = IExecuteFunctions | ILoadOptionsFunctions;
 

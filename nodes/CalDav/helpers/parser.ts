@@ -39,7 +39,7 @@ export function parseEventResults(events: DAVCalendarObject[]): IEventResponse[]
 
                 eventResults.push({
                     url: event.url,
-                    etag: event.etag,
+                    etag: event.etag || '',
                     uid: data.uid,
                     title: data.summary,
                     start: data.start.toISOString(),

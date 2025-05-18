@@ -1,7 +1,7 @@
 /* eslint-disable n8n-nodes-base/node-class-description-credentials-name-unsuffixed */
 
-import { IExecuteFunctions } from 'n8n-core';
 import {
+    IExecuteFunctions,
     ILoadOptionsFunctions,
     INodeExecutionData,
     INodePropertyOptions,
