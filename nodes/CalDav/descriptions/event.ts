@@ -1,11 +1,6 @@
-/* eslint-disable n8n-nodes-base/node-param-description-wrong-for-dynamic-options */
-/* eslint-disable n8n-nodes-base/node-param-display-name-wrong-for-dynamic-options */
+import { INodeProperties } from 'n8n-workflow';
 
-import {
-	INodeProperties
-} from 'n8n-workflow';
-
-export const operationFields: INodeProperties[] = [
+export const eventOperations: INodeProperties[] = [
     {
         displayName: 'Operation',
         name: 'operation',
@@ -14,7 +9,6 @@ export const operationFields: INodeProperties[] = [
         displayOptions: {
             show: {
                 resource: [
-                    'calendar',
                     'event'
                 ],
             },
@@ -23,22 +17,22 @@ export const operationFields: INodeProperties[] = [
             {
                 name: 'Create',
                 value: 'create',
-                action: 'Create a new calendar or event',
+                action: 'Create a new event',
             },
             {
                 name: 'Delete',
                 value: 'delete',
-                action: 'Delete a calendar or event',
+                action: 'Delete an event',
             },
             {
                 name: 'Get',
                 value: 'get',
-                action: 'Get a single calendar or event',
+                action: 'Get a single event',
             },
             {
                 name: 'Get Many',
                 value: 'getMany',
-                action: 'Get multiple calendars or events',
+                action: 'Get multiple events',
             },
             {
                 name: 'Search',
@@ -48,31 +42,14 @@ export const operationFields: INodeProperties[] = [
             {
                 name: 'Update',
                 value: 'update',
-                action: 'Update a calendar or event',
+                action: 'Update an event',
             },
         ],
         default: 'getMany',
-        required: true,
     },
-    // Calendar specific fields
-    {
-        displayName: 'Calendar Name',
-        name: 'calendarName',
-        type: 'string',
-        displayOptions: {
-            show: {
-                resource: [
-                    'calendar'
-                ],
-                operation: [
-                    'create'
-                ],
-            },
-        },
-        default: '',
-        description: 'The name of the calendar to create',
-        required: true,
-    },
+];
+
+export const eventFields: INodeProperties[] = [
     {
         displayName: 'Calendar',
         name: 'calendar',
@@ -80,26 +57,17 @@ export const operationFields: INodeProperties[] = [
         typeOptions: {
             loadOptionsMethod: 'getCalendars',
         },
+        required: true,
+        default: '',
+        description: 'The calendar to operate on',
         displayOptions: {
             show: {
                 resource: [
-                    'calendar',
                     'event'
-                ],
-                operation: [
-                    'delete',
-                    'get',
-                    'getMany',
-                    'search',
-                    'update'
                 ],
             },
         },
-        default: '',
-        description: 'The calendar to operate on',
-        required: true,
     },
-    // Event specific fields
     {
         displayName: 'Event Title',
         name: 'eventTitle',
@@ -182,9 +150,9 @@ export const operationFields: INodeProperties[] = [
         required: true,
     },
     {
-        displayName: 'Description',
-        name: 'description',
-        type: 'string',
+        displayName: 'Additional Fields',
+        name: 'additionalFields',
+        type: 'collection',
         displayOptions: {
             show: {
                 resource: [
@@ -196,44 +164,23 @@ export const operationFields: INodeProperties[] = [
                 ],
             },
         },
-        default: '',
-        description: 'The description of the event',
-    },
-    {
-        displayName: 'Location',
-        name: 'location',
-        type: 'string',
-        displayOptions: {
-            show: {
-                resource: [
-                    'event'
-                ],
-                operation: [
-                    'create',
-                    'update'
-                ],
+        default: {},
+        options: [
+            {
+                displayName: 'Description',
+                name: 'description',
+                type: 'string',
+                default: '',
+                description: 'The description of the event',
             },
-        },
-        default: '',
-        description: 'The location of the event',
-    },
-    // Search specific fields
-    {
-        displayName: 'Search Term',
-        name: 'searchTerm',
-        type: 'string',
-        displayOptions: {
-            show: {
-                resource: [
-                    'event'
-                ],
-                operation: [
-                    'search'
-                ],
+            {
+                displayName: 'Location',
+                name: 'location',
+                type: 'string',
+                default: '',
+                description: 'The location of the event',
             },
-        },
-        default: '',
-        description: 'Search term to filter events by title or description',
+        ],
     },
     {
         displayName: 'Add Attendees',
@@ -331,5 +278,23 @@ export const operationFields: INodeProperties[] = [
             },
         ],
         description: 'Attendees to add to the event',
+    },
+    {
+        displayName: 'Search Term',
+        name: 'searchTerm',
+        type: 'string',
+        displayOptions: {
+            show: {
+                resource: [
+                    'event'
+                ],
+                operation: [
+                    'search'
+                ],
+            },
+        },
+        default: '',
+        description: 'Search term to filter events by title or description',
+        required: true,
     },
 ];
