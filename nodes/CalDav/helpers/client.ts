@@ -4,10 +4,8 @@ import {
 } from 'n8n-workflow';
 
 import { DAVClient } from 'tsdav';
-import { CalDavFunction } from '../interfaces/common';
 
 export async function initClient(
-    this: IExecuteFunctions | ILoadOptionsFunctions,
     context: IExecuteFunctions | ILoadOptionsFunctions,
 ) {
     const credentials = await context.getCredentials('calDavBasicAuth');
@@ -26,10 +24,6 @@ export async function initClient(
         },
         defaultAccountType: 'caldav',
         authMethod: 'Basic',
-        headers: {
-            'User-Agent': 'n8n-nodes-caldav/1.0',
-            'X-Requested-With': 'n8n',
-        },
     });
 
     await client.login();

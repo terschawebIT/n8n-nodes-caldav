@@ -18,6 +18,7 @@ import * as calendarActions from './actions/calendar';
 import * as eventActions from './actions/event';
 import { getNextcloudHeaders, formatNextcloudEvent, parseNextcloudResponse } from './helpers/nextcloud';
 import { ICalendarCreate, ICalendarResponse } from './interfaces/calendar';
+import { IEventCreate, IEventUpdate } from './interfaces/event';
 
 export class CalDav implements INodeType {
     description: INodeTypeDescription = {
@@ -63,58 +64,58 @@ export class CalDav implements INodeType {
             },
             // Nextcloud-spezifische Einstellungen
             {
-                displayName: 'Nextcloud-Einstellungen',
+                displayName: 'Nextcloud Settings',
                 name: 'nextcloudSettings',
                 type: 'collection',
                 placeholder: 'Nextcloud-Einstellungen hinzufügen',
                 default: {},
                 options: [
                     {
-                        displayName: 'Export-Buttons ausblenden',
+                        displayName: 'Hide Event Export',
                         name: 'hideEventExport',
                         type: 'boolean',
                         default: false,
-                        description: 'Blendet die Export-Buttons in der Benutzeroberfläche aus',
+                        description: 'Whether to hide the export buttons in the user interface',
                     },
                     {
-                        displayName: 'Einladungen senden',
+                        displayName: 'Send Invitations',
                         name: 'sendInvitations',
                         type: 'boolean',
                         default: true,
-                        description: 'Aktiviert das Senden von Einladungen an Teilnehmer',
+                        description: 'Whether to send invitations to participants',
                     },
                     {
-                        displayName: 'Benachrichtigungen aktivieren',
+                        displayName: 'Enable Notifications',
                         name: 'enableNotifications',
                         type: 'boolean',
                         default: true,
-                        description: 'Aktiviert Benachrichtigungen für Termine',
+                        description: 'Whether to enable notifications for events',
                     },
                     {
-                        displayName: 'Push-Benachrichtigungen',
+                        displayName: 'Enable Push Notifications',
                         name: 'enablePushNotifications',
                         type: 'boolean',
                         default: true,
-                        description: 'Aktiviert Push-Benachrichtigungen für Termine',
+                        description: 'Whether to enable push notifications for events',
                     },
                     {
-                        displayName: 'Erinnerungstyp erzwingen',
+                        displayName: 'Force Event Alarm Type',
                         name: 'forceEventAlarmType',
                         type: 'options',
                         options: [
                             {
-                                name: 'E-Mail',
+                                name: 'Email',
                                 value: 'EMAIL',
-                                description: 'Erinnerungen per E-Mail senden',
+                                description: 'Send reminders via email',
                             },
                             {
-                                name: 'Benachrichtigung',
+                                name: 'Display',
                                 value: 'DISPLAY',
-                                description: 'Erinnerungen als Systembenachrichtigung anzeigen',
+                                description: 'Show reminders as system notifications',
                             },
                         ],
                         default: 'DISPLAY',
-                        description: 'Legt den Typ der Terminerinnerungen fest',
+                        description: 'The type of event reminders to use',
                     },
                 ],
             },
@@ -165,9 +166,8 @@ export class CalDav implements INodeType {
                 } else if (resource === 'event') {
                     // Terminoperationen mit Nextcloud-Anpassungen
                     if (operation === 'create') {
-                        const eventData = this.getNodeParameter('eventFields', i) as IDataObject;
-                        const formattedEvent = formatNextcloudEvent(eventData);
-                        const response = await eventActions.createEvent(this, formattedEvent);
+                        const eventData = this.getNodeParameter('eventFields', i) as IEventCreate;
+                        const response = await eventActions.createEvent(this, eventData);
                         returnData.push({ json: parseNextcloudResponse(response) });
                     } else if (operation === 'delete') {
                         const calendarName = this.getNodeParameter('calendarName', i) as string;
@@ -181,16 +181,26 @@ export class CalDav implements INodeType {
                         returnData.push({ json: parseNextcloudResponse(response) });
                     } else if (operation === 'getAll') {
                         const calendarName = this.getNodeParameter('calendarName', i) as string;
-                        const filters = this.getNodeParameter('filters', i) as IDataObject;
-                        const response = await eventActions.getEvents(this, calendarName, filters);
+                        const start = this.getNodeParameter('start', i) as string;
+                        const end = this.getNodeParameter('end', i) as string;
+                        const response = await eventActions.getEvents(this, calendarName, start, end);
                         const parsedEvents = response.map(event => parseNextcloudResponse(event));
                         returnData.push({ json: { events: parsedEvents } });
                     } else if (operation === 'update') {
+                        const updateFields = this.getNodeParameter('updateFields', i) as IDataObject;
                         const calendarName = this.getNodeParameter('calendarName', i) as string;
                         const eventId = this.getNodeParameter('eventId', i) as string;
-                        const eventData = this.getNodeParameter('updateFields', i) as IDataObject;
-                        const formattedEvent = formatNextcloudEvent(eventData);
-                        const response = await eventActions.updateEvent(this, calendarName, eventId, formattedEvent);
+                        const updateData: IEventUpdate = {
+                            calendarName,
+                            eventId,
+                            title: updateFields.title as string,
+                            start: updateFields.start as string,
+                            end: updateFields.end as string,
+                            description: updateFields.description as string | undefined,
+                            location: updateFields.location as string | undefined,
+                            attendees: updateFields.attendees as any[] | undefined,
+                        };
+                        const response = await eventActions.updateEvent(this, updateData);
                         returnData.push({ json: parseNextcloudResponse(response) });
                     }
                 }
