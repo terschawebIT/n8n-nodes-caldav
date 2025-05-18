@@ -1,4 +1,4 @@
-import { IDataObject } from 'n8n-workflow';
+import { IAttendee } from './event';
 
 export interface ICalendarBase {
     displayName: string;
@@ -53,12 +53,4 @@ export interface IEventResponse {
     groupId?: string;
     isRecurring?: boolean;
     recurrenceRule?: string;
-}
-
-export interface IAttendee {
-    email: string;
-    displayName?: string;
-    role?: 'REQ-PARTICIPANT' | 'OPT-PARTICIPANT' | 'CHAIR';
-    rsvp?: boolean;
-    status?: 'NEEDS-ACTION' | 'ACCEPTED' | 'DECLINED' | 'TENTATIVE';
 }

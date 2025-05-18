@@ -79,7 +79,7 @@ export class NextcloudCalendar implements INodeType {
                 },
                 options: [
                     {
-                        name: 'Alle Anzeigen',
+                        name: 'Get Many',
                         value: 'getAll',
                         description: 'Alle verfügbaren Kalender anzeigen',
                         action: 'Show all available calendars',
@@ -143,7 +143,7 @@ export class NextcloudCalendar implements INodeType {
                         action: 'Delete an event',
                     },
                     {
-                        name: 'Termine Suchen',
+                        name: 'Get Many',
                         value: 'getAll',
                         description: 'Sucht nach Terminen in einem Zeitraum',
                         action: 'Find events in a time range',
@@ -154,7 +154,7 @@ export class NextcloudCalendar implements INodeType {
             
             // Kalender-Name für alle Event-Operationen und Kalender löschen
             {
-                displayName: 'Kalender Name oder ID',
+                displayName: 'Kalender Name Oder Name or ID',
                 name: 'calendarName',
                 type: 'options',
                 typeOptions: {
@@ -167,10 +167,10 @@ export class NextcloudCalendar implements INodeType {
                 },
                 default: '',
                 required: true,
-                description: 'Wählen Sie aus der Liste oder geben Sie eine ID mit einer <a href="https://docs.n8n.io/code/expressions/">Expression</a> an',
+                description: 'Wählen Sie aus der Liste oder geben Sie eine ID mit einer <a href="https://docs.n8n.io/code/expressions/">Expression</a> an. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
             },
             {
-                displayName: 'Kalender Name oder ID',
+                displayName: 'Kalender Name Oder Name or ID',
                 name: 'calendarName',
                 type: 'options',
                 typeOptions: {
@@ -184,7 +184,7 @@ export class NextcloudCalendar implements INodeType {
                 },
                 default: '',
                 required: true,
-                description: 'Wählen Sie aus der Liste oder geben Sie eine ID mit einer <a href="https://docs.n8n.io/code/expressions/">Expression</a> an',
+                description: 'Wählen Sie aus der Liste oder geben Sie eine ID mit einer <a href="https://docs.n8n.io/code/expressions/">Expression</a> an. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
             },
             
             // Kalender-Name für Erstellung
@@ -357,7 +357,7 @@ export class NextcloudCalendar implements INodeType {
                         name: 'addAttendees',
                         type: 'boolean',
                         default: false,
-                        description: 'Teilnehmer zum Termin hinzufügen',
+                        description: 'Whether to add attendees to the event',
                     },
                     {
                         displayName: 'Teilnehmer',
@@ -396,7 +396,7 @@ export class NextcloudCalendar implements INodeType {
                                         name: 'rsvp',
                                         type: 'boolean',
                                         default: true,
-                                        description: 'Ob eine Antwort vom Teilnehmer erwartet wird',
+                                        description: 'Whether a response is expected from the attendee',
                                     },
                                     {
                                         displayName: 'Rolle',
@@ -427,7 +427,7 @@ export class NextcloudCalendar implements INodeType {
             
             // Felder zum Aktualisieren eines Termins
             {
-                displayName: 'Update Felder',
+                displayName: 'Update Fields',
                 name: 'updateFields',
                 type: 'collection',
                 placeholder: 'Feld aktualisieren',
@@ -519,14 +519,14 @@ export class NextcloudCalendar implements INodeType {
                         name: 'enableNotifications',
                         type: 'boolean',
                         default: true,
-                        description: 'Aktiviert Benachrichtigungen für Termine',
+                        description: 'Whether to enable notifications for events',
                     },
                     {
                         displayName: 'Einladungen Senden',
                         name: 'sendInvitations',
                         type: 'boolean',
                         default: true,
-                        description: 'Sendet Einladungen an Teilnehmer',
+                        description: 'Whether to send invitations to participants',
                         displayOptions: {
                             show: {
                                 '/resource': ['event'],
@@ -539,14 +539,14 @@ export class NextcloudCalendar implements INodeType {
                         name: 'hideEventExport',
                         type: 'boolean',
                         default: false,
-                        description: 'Blendet die Export-Buttons in der Benutzeroberfläche aus',
+                        description: 'Whether to hide the export buttons in the user interface',
                     },
                     {
                         displayName: 'Push-Benachrichtigungen Aktivieren',
                         name: 'enablePushNotifications',
                         type: 'boolean',
                         default: true,
-                        description: 'Aktiviert Push-Benachrichtigungen für Termine',
+                        description: 'Whether to enable push notifications for events',
                     },
                 ],
             },
