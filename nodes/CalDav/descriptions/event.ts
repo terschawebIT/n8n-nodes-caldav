@@ -1,6 +1,48 @@
 import { INodeProperties } from 'n8n-workflow';
 import { ICodex } from '../interfaces/ICodex';
 
+// Definiere die Codex-Typen für die Event-Operationen
+const createEventCodex: ICodex = {
+    type: 'action',
+    summary: 'Create a new calendar event',
+    description: 'Creates a new event with title, start time, end time, and optional description',
+    examples: ['Create a meeting from 2024-05-01T10:00:00Z to 2024-05-01T11:00:00Z', 'Create a birthday event with description']
+};
+
+const deleteEventCodex: ICodex = {
+    type: 'action',
+    summary: 'Delete an existing calendar event',
+    description: 'Removes a specific event from the calendar',
+    examples: ['Delete the event with ID "abc123"']
+};
+
+const getEventCodex: ICodex = {
+    type: 'action',
+    summary: 'Retrieve a specific calendar event',
+    description: 'Gets details about a specific event including title, time, and description',
+    examples: ['Get details of the event titled "Quarterly Review"']
+};
+
+const getAllEventsCodex: ICodex = {
+    type: 'action',
+    summary: 'Retrieve multiple calendar events',
+    description: 'Gets a list of events within a specified time range',
+    examples: ['Get all events for next week', 'List events between two dates']
+};
+
+const searchEventsCodex: ICodex = {
+    type: 'action',
+    summary: 'Search events',
+    description: 'Searches for events in the calendar matching the search term'
+};
+
+const updateEventCodex: ICodex = {
+    type: 'action',
+    summary: 'Update an existing calendar event',
+    description: 'Modifies event details like title, time, or description',
+    examples: ['Update the meeting time to 3pm', 'Change event location to "Conference Room B"']
+};
+
 export const eventOperations: INodeProperties[] = [
     {
         displayName: 'Operation',
@@ -18,71 +60,42 @@ export const eventOperations: INodeProperties[] = [
                 value: 'create',
                 description: 'Create a new event',
                 action: 'Create an event',
-                codex: {
-                    type: 'action',
-                    summary: 'Create a new calendar event',
-                    description: 'Creates a new event with title, start time, end time, and optional description',
-                    examples: ['Create a meeting from 2024-05-01T10:00:00Z to 2024-05-01T11:00:00Z', 'Create a birthday event with description']
-                }
+                codex: createEventCodex
             },
             {
                 name: 'Delete',
                 value: 'delete',
                 description: 'Delete an event',
                 action: 'Delete an event',
-                codex: {
-                    type: 'action',
-                    summary: 'Delete an existing calendar event',
-                    description: 'Removes a specific event from the calendar',
-                    examples: ['Delete the event with ID "abc123"']
-                }
+                codex: deleteEventCodex
             },
             {
                 name: 'Get',
                 value: 'get',
                 description: 'Get an event',
                 action: 'Get an event',
-                codex: {
-                    type: 'action',
-                    summary: 'Retrieve a specific calendar event',
-                    description: 'Gets details about a specific event including title, time, and description',
-                    examples: ['Get details of the event titled "Quarterly Review"']
-                }
+                codex: getEventCodex
             },
             {
                 name: 'Get Many',
                 value: 'getAll',
                 description: 'Get many events',
                 action: 'Get many events',
-                codex: {
-                    type: 'action',
-                    summary: 'Retrieve multiple calendar events',
-                    description: 'Gets a list of events within a specified time range',
-                    examples: ['Get all events for next week', 'List events between two dates']
-                }
+                codex: getAllEventsCodex
             },
             {
                 name: 'Search',
                 value: 'search',
                 description: 'Search for calendar events by title or description',
                 action: 'Search for events',
-                codex: {
-                    type: 'action',
-                    summary: 'Search events',
-                    description: 'Searches for events in the calendar matching the search term.',
-                },
+                codex: searchEventsCodex
             },
             {
                 name: 'Update',
                 value: 'update',
                 description: 'Update an event',
                 action: 'Update an event',
-                codex: {
-                    type: 'action',
-                    summary: 'Update an existing calendar event',
-                    description: 'Modifies event details like title, time, or description',
-                    examples: ['Update the meeting time to 3pm', 'Change event location to "Conference Room B"']
-                }
+                codex: updateEventCodex
             },
         ],
         default: 'create',

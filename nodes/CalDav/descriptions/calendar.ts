@@ -1,6 +1,35 @@
 import { INodeProperties } from 'n8n-workflow';
 import { ICodex } from '../interfaces/ICodex';
 
+// Definiere die Codex-Typen für die Operationen
+const createCalendarCodex: ICodex = {
+    type: 'action',
+    summary: 'Create a new calendar on the CalDAV server',
+    description: 'Creates a new calendar with specified name and timezone',
+    examples: ['Create a work calendar', 'Create a personal calendar with Europe/Berlin timezone']
+};
+
+const deleteCalendarCodex: ICodex = {
+    type: 'action',
+    summary: 'Delete an existing calendar from the CalDAV server',
+    description: 'Permanently removes a calendar and all its events',
+    examples: ['Delete the calendar named "Old Meetings"']
+};
+
+const getCalendarCodex: ICodex = {
+    type: 'action',
+    summary: 'Retrieve calendar information from the CalDAV server',
+    description: 'Gets details about a specific calendar including its properties',
+    examples: ['Get details of the calendar named "Team Events"']
+};
+
+const getAllCalendarsCodex: ICodex = {
+    type: 'action',
+    summary: 'Retrieve multiple calendars from the CalDAV server',
+    description: 'Gets a list of all available calendars and their properties',
+    examples: ['Get all calendars', 'List all available calendars']
+};
+
 export const calendarOperations: INodeProperties[] = [
     {
         displayName: 'Operation',
@@ -18,48 +47,28 @@ export const calendarOperations: INodeProperties[] = [
                 value: 'create',
                 description: 'Create a new calendar',
                 action: 'Create a calendar',
-                codex: {
-                    type: 'action',
-                    summary: 'Create a new calendar on the CalDAV server',
-                    description: 'Creates a new calendar with specified name and timezone',
-                    examples: ['Create a work calendar', 'Create a personal calendar with Europe/Berlin timezone']
-                }
+                codex: createCalendarCodex
             },
             {
                 name: 'Delete',
                 value: 'delete',
                 description: 'Delete a calendar',
                 action: 'Delete a calendar',
-                codex: {
-                    type: 'action',
-                    summary: 'Delete an existing calendar from the CalDAV server',
-                    description: 'Permanently removes a calendar and all its events',
-                    examples: ['Delete the calendar named "Old Meetings"']
-                }
+                codex: deleteCalendarCodex
             },
             {
                 name: 'Get',
                 value: 'get',
                 description: 'Get a calendar',
                 action: 'Get a calendar',
-                codex: {
-                    type: 'action',
-                    summary: 'Retrieve calendar information from the CalDAV server',
-                    description: 'Gets details about a specific calendar including its properties',
-                    examples: ['Get details of the calendar named "Team Events"']
-                }
+                codex: getCalendarCodex
             },
             {
                 name: 'Get Many',
                 value: 'getAll',
                 description: 'Get many calendars',
                 action: 'Get many calendars',
-                codex: {
-                    type: 'action',
-                    summary: 'Retrieve multiple calendars from the CalDAV server',
-                    description: 'Gets a list of all available calendars and their properties',
-                    examples: ['Get all calendars', 'List all available calendars']
-                }
+                codex: getAllCalendarsCodex
             },
         ],
         default: 'create',
