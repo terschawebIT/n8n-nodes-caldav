@@ -62,6 +62,14 @@ export const eventFields: INodeProperties[] = [
                 resource: [
                     'event'
                 ],
+                operation: [
+                    'create',
+                    'delete',
+                    'get',
+                    'getMany',
+                    'search',
+                    'update'
+                ],
             },
         },
         default: '',
