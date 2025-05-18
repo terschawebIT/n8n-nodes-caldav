@@ -8,6 +8,7 @@ import {
     INodeType,
     INodeTypeDescription,
     IDataObject,
+    NodeConnectionType,
 } from 'n8n-workflow';
 
 import { calendarOperations, calendarFields } from './descriptions/calendar';
@@ -28,8 +29,18 @@ export class CalDav implements INodeType {
         defaults: {
             name: 'CalDAV',
         },
-        inputs: ['main'],
-        outputs: ['main'],
+        inputs: [
+            {
+                type: NodeConnectionType.Main,
+                displayName: 'Input',
+            },
+        ],
+        outputs: [
+            {
+                type: NodeConnectionType.Main,
+                displayName: 'Output',
+            },
+        ],
         credentials: [
             {
                 name: 'calDavBasicAuth',
