@@ -1,69 +1,169 @@
-import { parseICS } from 'node-ical';
 import { DAVCalendarObject, DAVResponse } from 'tsdav';
 import { IEventResponse, IAttendee } from '../interfaces/event';
 
 type CalendarObjectType = DAVCalendarObject | DAVResponse;
 
+interface ICalParams {
+    [key: string]: string;
+}
+
+function parseICalDate(date: string): Date {
+    // Format: YYYYMMDDTHHMMSSZ or YYYYMMDD
+    const year = parseInt(date.substr(0, 4));
+    const month = parseInt(date.substr(4, 2)) - 1;
+    const day = parseInt(date.substr(6, 2));
+    
+    if (date.includes('T')) {
+        const hour = parseInt(date.substr(9, 2));
+        const minute = parseInt(date.substr(11, 2));
+        const second = parseInt(date.substr(13, 2));
+        return new Date(Date.UTC(year, month, day, hour, minute, second));
+    }
+    
+    return new Date(Date.UTC(year, month, day));
+}
+
+function parseICS(icsData: string): any {
+    const lines = icsData.split('\n').map(line => line.trim());
+    const event: any = {};
+    let currentArray: string[] = [];
+    
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (line.startsWith('BEGIN:VEVENT')) {
+            continue;
+        }
+        if (line.startsWith('END:VEVENT')) {
+            break;
+        }
+        
+        const [key, ...values] = line.split(':');
+        const value = values.join(':');
+        
+        switch (key) {
+            case 'UID':
+                event.uid = value;
+                break;
+            case 'SUMMARY':
+                event.summary = value;
+                break;
+            case 'DESCRIPTION':
+                event.description = value;
+                break;
+            case 'LOCATION':
+                event.location = value;
+                break;
+            case 'DTSTART':
+                event.start = parseICalDate(value);
+                break;
+            case 'DTEND':
+                event.end = parseICalDate(value);
+                break;
+            case 'CREATED':
+                event.created = parseICalDate(value);
+                break;
+            case 'LAST-MODIFIED':
+                event.lastmodified = parseICalDate(value);
+                break;
+            case 'STATUS':
+                event.status = value;
+                break;
+            case 'ATTENDEE':
+                if (!event.attendee) {
+                    event.attendee = [];
+                }
+                const [params, email] = value.split('mailto:');
+                const attendee = {
+                    val: `mailto:${email}`,
+                    params: {} as ICalParams
+                };
+                if (params) {
+                    params.split(';').forEach((param: string) => {
+                        const [paramKey, paramValue] = param.split('=');
+                        if (paramKey && paramValue) {
+                            attendee.params[paramKey] = paramValue;
+                        }
+                    });
+                }
+                event.attendee.push(attendee);
+                break;
+            case 'ORGANIZER':
+                const [orgParams, orgEmail] = value.split('mailto:');
+                event.organizer = {
+                    val: `mailto:${orgEmail}`,
+                    params: {} as ICalParams
+                };
+                if (orgParams) {
+                    orgParams.split(';').forEach((param: string) => {
+                        const [paramKey, paramValue] = param.split('=');
+                        if (paramKey && paramValue) {
+                            event.organizer.params[paramKey] = paramValue;
+                        }
+                    });
+                }
+                break;
+        }
+    }
+    
+    return { vevent: event };
+}
+
 export function parseEventResults(events: CalendarObjectType[]): IEventResponse[] {
     const eventResults: IEventResponse[] = [];
 
     for (const event of events) {
-        const data = 'data' in event ? event.data : (event as any).props?.['calendar-data']?._text;
-        if (!data) {
+        const eventData = 'data' in event ? event.data : (event as any).props?.['calendar-data']?._text;
+        if (!eventData) {
             continue;
         }
 
-        const eventData = parseICS(data);
-        for (const key in eventData) {
-            if (key !== 'vcalendar') {
-                const data = eventData[key] as any;
+        const parsedData = parseICS(eventData);
+        const eventInfo = parsedData.vevent;
 
-                // Parse attendees from iCal format
-                const attendees: IAttendee[] = [];
-                if (data.attendee) {
-                    const attendeeList = Array.isArray(data.attendee) ? data.attendee : [data.attendee];
-                    for (const attendee of attendeeList) {
-                        const email = attendee.val.replace('mailto:', '');
-                        const params = attendee.params || {};
-                        attendees.push({
-                            email,
-                            displayName: params.CN,
-                            role: params.ROLE || 'REQ-PARTICIPANT',
-                            rsvp: params.RSVP === 'TRUE',
-                            status: params.PARTSTAT || 'NEEDS-ACTION',
-                        });
-                    }
-                }
-
-                // Parse organizer
-                let organizer;
-                if (data.organizer) {
-                    organizer = {
-                        email: data.organizer.val.replace('mailto:', ''),
-                        displayName: data.organizer.params?.CN,
-                    };
-                }
-
-                const url = 'url' in event ? event.url : (event as any).href;
-                const etag = 'etag' in event ? event.etag : (event as any).props?.getetag?._text;
-
-                eventResults.push({
-                    url: url || '',
-                    etag: etag || '',
-                    uid: data.uid,
-                    title: data.summary,
-                    start: data.start.toISOString(),
-                    end: data.end.toISOString(),
-                    description: data.description,
-                    location: data.location,
-                    created: data.created,
-                    lastModified: data.lastmodified,
-                    status: data.status,
-                    attendees,
-                    organizer,
+        // Parse attendees from iCal format
+        const attendees: IAttendee[] = [];
+        if (eventInfo.attendee) {
+            const attendeeList = Array.isArray(eventInfo.attendee) ? eventInfo.attendee : [eventInfo.attendee];
+            for (const attendee of attendeeList) {
+                const email = attendee.val.replace('mailto:', '');
+                const params = attendee.params || {};
+                attendees.push({
+                    email,
+                    displayName: params.CN,
+                    role: params.ROLE || 'REQ-PARTICIPANT',
+                    rsvp: params.RSVP === 'TRUE',
+                    status: params.PARTSTAT || 'NEEDS-ACTION',
                 });
             }
         }
+
+        // Parse organizer
+        let organizer;
+        if (eventInfo.organizer) {
+            organizer = {
+                email: eventInfo.organizer.val.replace('mailto:', ''),
+                displayName: eventInfo.organizer.params?.CN,
+            };
+        }
+
+        const url = 'url' in event ? event.url : (event as any).href;
+        const etag = 'etag' in event ? event.etag : (event as any).props?.getetag?._text;
+
+        eventResults.push({
+            url: url || '',
+            etag: etag || '',
+            uid: eventInfo.uid,
+            title: eventInfo.summary,
+            start: eventInfo.start.toISOString(),
+            end: eventInfo.end.toISOString(),
+            description: eventInfo.description,
+            location: eventInfo.location,
+            created: eventInfo.created,
+            lastModified: eventInfo.lastmodified,
+            status: eventInfo.status,
+            attendees,
+            organizer,
+        });
     }
 
     return eventResults.sort((a, b) => {
@@ -79,7 +179,7 @@ export function parseEventResults(events: CalendarObjectType[]): IEventResponse[
 
 export function parseICalEvent(calendarObject: DAVCalendarObject): IEventResponse {
     const icalData = parseICS(calendarObject.data);
-    const event = Object.values(icalData)[0] as any;
+    const event = icalData.vevent;
 
     return {
         uid: event.uid,
@@ -94,18 +194,18 @@ export function parseICalEvent(calendarObject: DAVCalendarObject): IEventRespons
         lastModified: event.lastModified,
         status: event.status,
         organizer: event.organizer ? {
-            email: event.organizer.val,
+            email: event.organizer.val.replace('mailto:', ''),
             displayName: event.organizer.params?.CN,
         } : undefined,
         attendees: event.attendee ? Array.isArray(event.attendee) ?
             event.attendee.map((a: any) => ({
-                email: a.val,
+                email: a.val.replace('mailto:', ''),
                 displayName: a.params?.CN,
                 role: a.params?.ROLE,
                 status: a.params?.PARTSTAT,
             })) :
             [{
-                email: event.attendee.val,
+                email: event.attendee.val.replace('mailto:', ''),
                 displayName: event.attendee.params?.CN,
                 role: event.attendee.params?.ROLE,
                 status: event.attendee.params?.PARTSTAT,
