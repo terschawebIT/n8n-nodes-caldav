@@ -1,4 +1,5 @@
 import { INodeProperties } from 'n8n-workflow';
+import { ICodex } from '../interfaces/ICodex';
 
 export const eventOperations: INodeProperties[] = [
     {
@@ -19,36 +20,66 @@ export const eventOperations: INodeProperties[] = [
                 value: 'create',
                 description: 'Create a new calendar event',
                 action: 'Create a new event',
+                codex: {
+                    type: 'action',
+                    summary: 'Create a new event',
+                    description: 'Creates a new event in the specified calendar with title, start time, end time, and optional details.',
+                },
             },
             {
                 name: 'Delete',
                 value: 'delete',
                 description: 'Delete an existing calendar event',
                 action: 'Delete an event',
+                codex: {
+                    type: 'action',
+                    summary: 'Delete an event',
+                    description: 'Deletes an existing event from the specified calendar.',
+                },
             },
             {
                 name: 'Get',
                 value: 'get',
                 description: 'Get details of a specific calendar event',
                 action: 'Get a single event',
+                codex: {
+                    type: 'action',
+                    summary: 'Get an event',
+                    description: 'Retrieves details of a specific event from the calendar.',
+                },
             },
             {
                 name: 'Get Many',
                 value: 'getMany',
                 description: 'Get a list of calendar events',
                 action: 'Get multiple events',
+                codex: {
+                    type: 'action',
+                    summary: 'Get all events',
+                    description: 'Retrieves a list of events from the specified calendar within the given time range.',
+                },
             },
             {
                 name: 'Search',
                 value: 'search',
                 description: 'Search for calendar events by title or description',
                 action: 'Search for events',
+                codex: {
+                    type: 'action',
+                    summary: 'Search events',
+                    description: 'Searches for events in the calendar matching the search term.',
+                },
             },
             {
                 name: 'Update',
                 value: 'update',
                 description: 'Update an existing calendar event',
                 action: 'Update an event',
+                codex: {
+                    type: 'action',
+                    summary: 'Update an event',
+                    description: 'Updates the details of an existing event in the calendar.',
+                },
             },
         ],
         default: 'getMany',
@@ -80,7 +111,12 @@ export const eventFields: INodeProperties[] = [
         },
         default: '',
         required: true,
-        description: 'Select the calendar to operate on. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>',
+        description: 'Select the calendar to operate on. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>.',
+        codex: {
+            type: 'string',
+            summary: 'The calendar containing the events',
+            examples: ['Work Calendar', 'personal-calendar', 'team-events'],
+        },
     },
     {
         displayName: 'Event Title',
@@ -101,6 +137,11 @@ export const eventFields: INodeProperties[] = [
         placeholder: 'Team Meeting',
         description: 'Title/subject of the calendar event',
         required: true,
+        codex: {
+            type: 'string',
+            summary: 'The title of the event',
+            examples: ['Weekly Team Meeting', 'Project Kickoff', 'Client Call'],
+        },
     },
     {
         displayName: 'Event ID',
@@ -121,6 +162,11 @@ export const eventFields: INodeProperties[] = [
         default: '',
         description: 'Unique identifier of the calendar event to operate on',
         required: true,
+        codex: {
+            type: 'string',
+            summary: 'The unique ID of the event',
+            examples: ['event-123', '2024-team-meeting-1'],
+        },
     },
     {
         displayName: 'Start Time',
@@ -142,6 +188,11 @@ export const eventFields: INodeProperties[] = [
         default: '={{ $now.toISO() }}',
         description: 'Start date and time of the event (e.g. 2025-05-18T10:00:00Z)',
         required: true,
+        codex: {
+            type: 'string',
+            summary: 'The start time of the event',
+            examples: ['2024-03-15T09:00:00Z', '2024-06-20T14:30:00+02:00'],
+        },
     },
     {
         displayName: 'End Time',
@@ -163,6 +214,11 @@ export const eventFields: INodeProperties[] = [
         default: '={{ $now.plus({ hour: 1 }).toISO() }}',
         description: 'End date and time of the event (e.g. 2025-05-18T11:00:00Z)',
         required: true,
+        codex: {
+            type: 'string',
+            summary: 'The end time of the event',
+            examples: ['2024-03-15T10:00:00Z', '2024-06-20T16:30:00+02:00'],
+        },
     },
     {
         displayName: 'Additional Fields',
@@ -188,6 +244,11 @@ export const eventFields: INodeProperties[] = [
                 default: '',
                 placeholder: 'Weekly team sync meeting to discuss project progress',
                 description: 'Detailed description of the calendar event',
+                codex: {
+                    type: 'string',
+                    summary: 'The description of the event',
+                    examples: ['Monthly team sync to discuss project progress', 'Client presentation for Q2 results'],
+                },
             },
             {
                 displayName: 'Location',
@@ -196,6 +257,11 @@ export const eventFields: INodeProperties[] = [
                 default: '',
                 placeholder: 'Conference Room A or https://meet.example.com',
                 description: 'Physical location or virtual meeting link for the event',
+                codex: {
+                    type: 'string',
+                    summary: 'The location of the event',
+                    examples: ['Conference Room B', 'https://meet.google.com/abc-defg-hij', 'Main Office'],
+                },
             },
         ],
     },
