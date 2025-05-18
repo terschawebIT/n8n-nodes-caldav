@@ -25,7 +25,7 @@ export class CalDav implements INodeType {
         group: ['transform'],
         version: 1,
         subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-        description: 'Create and manage calendars and events via CalDAV',
+        description: 'Verwalten Sie Ihre Kalender und Termine einfach und effizient',
         defaults: {
             name: 'CalDAV',
         },
@@ -35,27 +35,32 @@ export class CalDav implements INodeType {
             {
                 name: 'calDavBasicAuth',
                 required: true,
+                displayName: 'CalDAV Zugangsdaten',
+                description: 'Ihre Anmeldedaten für den CalDAV-Server'
             },
         ],
         usableAsTool: true,
         properties: [
             {
-                displayName: 'Resource',
+                displayName: 'Ressource',
                 name: 'resource',
                 type: 'options',
                 options: [
                     {
-                        name: 'Calendar',
+                        name: 'Kalender',
                         value: 'calendar',
+                        description: 'Kalender erstellen, bearbeiten und verwalten'
                     },
                     {
-                        name: 'Event',
+                        name: 'Termin',
                         value: 'event',
+                        description: 'Termine planen und organisieren'
                     }
                 ],
                 default: 'calendar',
                 noDataExpression: true,
                 required: true,
+                description: 'Wählen Sie, ob Sie mit Kalendern oder Terminen arbeiten möchten'
             },
             ...calendarOperations,
             ...calendarFields,

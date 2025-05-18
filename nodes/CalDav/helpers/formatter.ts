@@ -1,64 +1,70 @@
-import { IAttendee } from '../interfaces/event';
+import { v4 as uuidv4 } from 'uuid';
+import { IAttendee } from '../interfaces/IAttendee';
 
-export function formatDateTime(date: Date | string): string {
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    return dateObj.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+interface IEventData {
+    title: string;
+    start: string;
+    end: string;
+    description?: string;
+    location?: string;
+    attendees?: IAttendee[];
+    organizer?: {
+        email: string;
+        displayName: string;
+    };
 }
 
-export function formatAttendees(attendees: IAttendee[]): string[] {
-    return attendees.map(attendee => {
-        const params = [];
+export function formatEvent(eventData: IEventData): string {
+    const uid = uuidv4();
+    const now = new Date().toISOString().replace(/[-:.]/g, '');
 
-        if (attendee.displayName) {
-            params.push(`CN="${attendee.displayName}"`);
-        }
+    let iCalString = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//n8n//CalDAV Node Nextcloud//EN
+BEGIN:VEVENT
+UID:${uid}
+DTSTAMP:${now.substring(0, 15)}Z
+DTSTART:${eventData.start.replace(/[-:.]/g, '')}
+DTEND:${eventData.end.replace(/[-:.]/g, '')}
+SUMMARY:${eventData.title}
+SEQUENCE:0
+STATUS:CONFIRMED\n`;
 
-        if (attendee.role) {
-            params.push(`ROLE=${attendee.role}`);
-        }
-
-        if (attendee.rsvp !== undefined) {
-            params.push(`RSVP=${attendee.rsvp ? 'TRUE' : 'FALSE'}`);
-        }
-
-        params.push('PARTSTAT=NEEDS-ACTION');
-
-        const paramsString = params.length ? `;${params.join(';')}` : '';
-        return `ATTENDEE${paramsString}:mailto:${attendee.email}`;
-    });
-}
-
-export function formatEvent(data: any): string {
-    const lines = [
-        'BEGIN:VCALENDAR',
-        'VERSION:2.0',
-        'PRODID:-//n8n//CalDAV Node//EN',
-        'BEGIN:VEVENT',
-        `SUMMARY:${data.title}`,
-        `DTSTART:${new Date(data.start).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')}`,
-        `DTEND:${new Date(data.end).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')}`,
-    ];
-
-    if (data.description) {
-        lines.push(`DESCRIPTION:${data.description}`);
+    if (eventData.description) {
+        iCalString += `DESCRIPTION:${eventData.description.replace(/\\n/g, '\\n')}\n`;
     }
 
-    if (data.location) {
-        lines.push(`LOCATION:${data.location}`);
+    if (eventData.location) {
+        iCalString += `LOCATION:${eventData.location}\n`;
     }
 
-    if (data.organizer) {
-        lines.push(`ORGANIZER;CN="${data.organizer.displayName}":mailto:${data.organizer.email}`);
+    // Nextcloud-spezifische Eigenschaften
+    iCalString += 'CLASS:PUBLIC\n';
+    iCalString += `X-NC-GROUP-ID:${uid}\n`;
+
+    if (eventData.organizer) {
+        iCalString += `ORGANIZER;CN=${eventData.organizer.displayName}:mailto:${eventData.organizer.email}\n`;
     }
 
-    if (data.attendees && data.attendees.length > 0) {
-        lines.push(...formatAttendees(data.attendees));
+    if (eventData.attendees && eventData.attendees.length > 0) {
+        eventData.attendees.forEach((attendee) => {
+            let attendeeString = 'ATTENDEE;CUTYPE=INDIVIDUAL';
+            if (attendee.displayName) {
+                attendeeString += `;CN=${attendee.displayName}`;
+            }
+            if (attendee.role) {
+                attendeeString += `;ROLE=${attendee.role}`;
+            }
+            if (attendee.rsvp) {
+                attendeeString += ';RSVP=TRUE';
+            }
+            attendeeString += `:mailto:${attendee.email}\n`;
+            iCalString += attendeeString;
+        });
     }
 
-    lines.push(
-        'END:VEVENT',
-        'END:VCALENDAR'
-    );
+    iCalString += `END:VEVENT
+END:VCALENDAR`;
 
-    return lines.join('\r\n');
+    return iCalString;
 }

@@ -5,26 +5,30 @@ import { ICodex } from '../interfaces/ICodex';
 const listCalendarsCodex: ICodex = {
     type: 'action',
     summary: 'Kalender anzeigen',
-    description: 'Zeigt eine Übersicht aller verfügbaren Kalender mit ihren Eigenschaften wie Name, Farbe, Zeitzone und Freigaben.',
+    description: 'Zeigt eine übersichtliche Liste aller Ihrer Kalender an. Sie sehen auf einen Blick Namen, Farben, Zeitzonen und wer Zugriff hat.',
     examples: [
         'Zeige alle meine Kalender',
         'Welche Kalender sind verfügbar?',
         'Liste die Team-Kalender auf',
         'Zeige geteilte Kalender',
-        'Welche Kalender kann ich bearbeiten?'
+        'Welche Kalender kann ich bearbeiten?',
+        'Zeige nur die Kalender, die ich erstellt habe',
+        'Liste Kalender nach Berechtigungen sortiert'
     ]
 };
 
 const createCalendarCodex: ICodex = {
     type: 'action',
     summary: 'Kalender erstellen',
-    description: 'Erstellt einen neuen Kalender mit anpassbaren Einstellungen für Name, Farbe, Zeitzone und Zugriffsrechte.',
+    description: 'Erstellt einen neuen Kalender ganz nach Ihren Wünschen. Sie können Namen, Farbe, Zeitzone und Berechtigungen direkt beim Erstellen festlegen.',
     examples: [
         'Erstelle einen neuen Kalender "Projekt Alpha"',
         'Lege einen Team-Kalender an',
         'Erstelle einen privaten Kalender',
         'Neuer Kalender mit Zeitzone Europe/Berlin',
-        'Erstelle einen geteilten Kalender für das Marketing-Team'
+        'Erstelle einen geteilten Kalender für das Marketing-Team',
+        'Neuer Kalender mit automatischen Benachrichtigungen',
+        'Erstelle einen Ressourcen-Kalender für Meetingräume'
     ]
 };
 
@@ -82,7 +86,7 @@ const deleteCalendarCodex: ICodex = {
 
 export const calendarOperations: INodeProperties[] = [
     {
-        displayName: 'Operation',
+        displayName: 'Aktion',
         name: 'operation',
         type: 'options',
         noDataExpression: true,
@@ -93,132 +97,76 @@ export const calendarOperations: INodeProperties[] = [
         },
         options: [
             {
-                name: 'Kalender anzeigen',
-                value: 'list',
-                description: 'Zeigt verfügbare Kalender',
-                action: 'List calendars',
-                codex: listCalendarsCodex
-            },
-            {
                 name: 'Kalender erstellen',
                 value: 'create',
-                description: 'Erstellt einen neuen Kalender',
-                action: 'Create calendar',
-                codex: createCalendarCodex
-            },
-            {
-                name: 'Kalender konfigurieren',
-                value: 'configure',
-                description: 'Passt Kalendereinstellungen an',
-                action: 'Configure calendar',
-                codex: configureCalendarCodex
-            },
-            {
-                name: 'Kalender freigeben',
-                value: 'share',
-                description: 'Verwaltet Kalenderfreigaben',
-                action: 'Share calendar',
-                codex: shareCalendarCodex
-            },
-            {
-                name: 'Kalender abonnieren',
-                value: 'subscribe',
-                description: 'Fügt externen Kalender hinzu',
-                action: 'Subscribe to calendar',
-                codex: subscribeCalendarCodex
+                description: 'Einen neuen Nextcloud-Kalender erstellen',
+                action: 'Einen neuen Kalender erstellen',
             },
             {
                 name: 'Kalender löschen',
                 value: 'delete',
-                description: 'Entfernt einen Kalender',
-                action: 'Delete calendar',
-                codex: deleteCalendarCodex
-            }
+                description: 'Einen bestehenden Nextcloud-Kalender löschen',
+                action: 'Einen Kalender löschen',
+            },
+            {
+                name: 'Alle Kalender abrufen',
+                value: 'getAll',
+                description: 'Liste aller verfügbaren Nextcloud-Kalender abrufen',
+                action: 'Alle Kalender abrufen',
+            },
         ],
-        default: 'list',
+        default: 'create',
     },
 ];
 
 export const calendarFields: INodeProperties[] = [
     {
-        displayName: 'New Calendar Name',
-        name: 'calendarName',
-        type: 'string',
-        displayOptions: {
-            show: {
-                resource: [
-                    'calendar'
-                ],
-                operation: [
-                    'create'
-                ],
-            },
-        },
-        default: '',
-        description: 'Name for the new calendar to be created on the CalDAV server',
-        placeholder: 'My New Calendar',
-        required: true,
-        codex: {
-            type: 'string',
-            summary: 'The name of the new calendar',
-            examples: ['Team Calendar', 'Project Deadlines', 'Holidays 2024'],
-        },
-    },
-    {
-        displayName: 'Calendar Name or ID',
+        displayName: 'Kalendername',
         name: 'name',
-        type: 'options',
-        typeOptions: {
-            loadOptionsMethod: 'getCalendars',
-        },
+        type: 'string',
+        required: true,
         displayOptions: {
             show: {
-                resource: [
-                    'calendar'
-                ],
-                operation: [
-                    'delete',
-                    'get'
-                ],
+                resource: ['calendar'],
+                operation: ['create', 'delete'],
             },
         },
         default: '',
-        required: true,
-        description: 'Select the calendar to operate on. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>.',
-        codex: {
-            type: 'string',
-            summary: 'The name or ID of the calendar to operate on',
-            examples: ['Work Calendar', 'personal-calendar', 'team-events'],
-        },
+        description: 'Name des Nextcloud-Kalenders',
     },
     {
-        displayName: 'Additional Fields',
+        displayName: 'Zusätzliche Felder',
         name: 'additionalFields',
         type: 'collection',
+        placeholder: 'Feld hinzufügen',
+        default: {},
         displayOptions: {
             show: {
-                resource: [
-                    'calendar'
-                ],
-                operation: [
-                    'create'
-                ],
+                resource: ['calendar'],
+                operation: ['create'],
             },
         },
-        default: {},
         options: [
             {
-                displayName: 'Timezone',
+                displayName: 'Zeitzone',
                 name: 'timezone',
                 type: 'string',
-                default: 'UTC',
-                description: 'The timezone for the calendar (e.g. Europe/Berlin, America/New_York)',
-                placeholder: 'UTC',
-                codex: {
-                    type: 'string',
-                    summary: 'The timezone for the calendar',
-                    examples: ['Europe/Berlin', 'America/New_York', 'Asia/Tokyo'],
-                },
+                default: 'Europe/Berlin',
+                description: 'Zeitzone für den Kalender (z.B. Europe/Berlin)',
+            },
+            {
+                displayName: 'Farbe',
+                name: 'color',
+                type: 'color',
+                default: '#0082C9',
+                description: 'Farbe des Kalenders in der Nextcloud-Oberfläche',
+            },
+            {
+                displayName: 'Beschreibung',
+                name: 'description',
+                type: 'string',
+                default: '',
+                description: 'Beschreibung des Kalenders',
             },
         ],
     },

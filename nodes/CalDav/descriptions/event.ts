@@ -5,26 +5,30 @@ import { ICodex } from '../interfaces/ICodex';
 const nextEventsCodex: ICodex = {
     type: 'action',
     summary: 'Zeige nächste Termine',
-    description: 'Zeigt die nächsten anstehenden Termine. Standardmäßig werden die Termine der nächsten 7 Tage angezeigt, der Zeitraum kann aber angepasst werden.',
+    description: 'Zeigt Ihre anstehenden Termine übersichtlich an. Sie können den Zeitraum flexibel wählen - von heute bis zu mehreren Wochen in die Zukunft.',
     examples: [
         'Was sind meine nächsten Termine?',
         'Zeige mir die Termine für heute',
         'Was steht diese Woche noch an?',
         'Wann ist mein nächstes Meeting?',
-        'Liste alle Termine für morgen'
+        'Liste alle Termine für morgen',
+        'Zeige wichtige Termine der nächsten 2 Wochen',
+        'Welche Deadlines stehen diese Woche an?'
     ]
 };
 
 const createEventCodex: ICodex = {
     type: 'action',
     summary: 'Neuen Termin erstellen',
-    description: 'Erstellt einen neuen Termin. Unterstützt Einzeltermine, Serientermine, ganztägige Events und Online-Meetings mit automatischer Videokonferenz-Erstellung.',
+    description: 'Erstellt einen neuen Termin - egal ob einmalig oder wiederkehrend. Sie können Teilnehmer einladen, Online-Meetings automatisch erstellen und Erinnerungen einrichten.',
     examples: [
         'Erstelle einen Termin "Team-Meeting" morgen um 10 Uhr',
         'Plane einen ganztägigen Urlaub vom 1. bis 15. August',
         'Erstelle einen wöchentlichen Jour-Fix jeden Montag um 9 Uhr',
         'Neues Online-Meeting am Freitag um 14 Uhr',
-        'Trage Geburtstag von Max am 3. Mai ein'
+        'Trage Geburtstag von Max am 3. Mai ein',
+        'Erstelle Termin mit automatischer Zoom-Einladung',
+        'Plane monatliches Review jeweils am ersten Montag'
     ]
 };
 
@@ -81,12 +85,15 @@ const respondToEventCodex: ICodex = {
 const checkAvailabilityCodex: ICodex = {
     type: 'action',
     summary: 'Verfügbarkeit prüfen',
-    description: 'Prüft die Verfügbarkeit von Teilnehmern oder Ressourcen für einen bestimmten Zeitraum. Hilft bei der Terminfindung.',
+    description: 'Findet die perfekte Zeit für Ihr Meeting. Prüft die Verfügbarkeit aller Teilnehmer und Ressourcen und schlägt passende Termine vor.',
     examples: [
         'Wann sind alle Teammitglieder diese Woche verfügbar?',
         'Ist der Konferenzraum morgen um 14 Uhr frei?',
         'Zeige freie Zeiten für ein Meeting nächste Woche',
-        'Wann haben Peter und Marie beide Zeit?'
+        'Wann haben Peter und Marie beide Zeit?',
+        'Finde einen 2-Stunden-Slot diese Woche',
+        'Wann ist der Meetingraum A für 10 Personen verfügbar?',
+        'Zeige Verfügbarkeit des Teams zwischen 9 und 17 Uhr'
     ]
 };
 
