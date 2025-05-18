@@ -1,14 +1,18 @@
-import { DAVCalendar } from 'tsdav';
-import { CalDavFunction } from '../interfaces/common';
-import { ICalendarCreate, ICalendarResponse } from '../interfaces/calendar';
+import {
+    IExecuteFunctions,
+    ILoadOptionsFunctions,
+} from 'n8n-workflow';
+
+import { DAVCalendar, DAVClient } from 'tsdav';
 import { initClient } from '../helpers/client';
+import { ICalendarCreate } from '../interfaces/calendar';
 
 export async function findCalendar(
-    context: CalDavFunction,
-    client: any,
+    context: ILoadOptionsFunctions | IExecuteFunctions,
+    client: DAVClient,
     calendarName: string,
 ): Promise<DAVCalendar> {
-    const calendars = await getCalendars(context, client);
+    const calendars = await getCalendars(context);
     const calendar = calendars.find((cal: DAVCalendar) => cal.displayName === calendarName);
     if (!calendar) {
         throw new Error(`Calendar "${calendarName}" not found`);
@@ -17,49 +21,48 @@ export async function findCalendar(
 }
 
 export async function getCalendars(
-    context: CalDavFunction,
-    client?: any,
-): Promise<ICalendarResponse[]> {
-    if (!client) {
-        client = await initClient(context);
-    }
+    context: ILoadOptionsFunctions | IExecuteFunctions,
+): Promise<DAVCalendar[]> {
+    const client = await initClient(context);
     const calendars = await client.fetchCalendars();
     return calendars;
 }
 
 export async function createCalendar(
-    context: CalDavFunction,
+    context: IExecuteFunctions,
     data: ICalendarCreate,
-): Promise<ICalendarResponse> {
+): Promise<DAVCalendar> {
     const client = await initClient(context);
-
-    // Erstelle einen neuen Kalender als CalDAV-Sammlung
     const calendars = await client.fetchCalendars();
     const homeUrl = calendars[0]?.url?.split('/').slice(0, -1).join('/') || '';
 
-    const calendarObject = await client.createCalendarObject({
+    await client.createCalendarObject({
         calendar: {
-            url: `${homeUrl}/${data.name}/`,
-            displayName: data.name,
+            url: `${homeUrl}/${data.displayName}/`,
+            displayName: data.displayName,
         },
         filename: 'calendar.ics',
         iCalString: `BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//n8n//CalDAV Client//EN
-NAME:${data.name}
+PRODID:-//n8n//CalDAV Node//EN
+NAME:${data.displayName}
 X-WR-TIMEZONE:${data.timezone || 'UTC'}
 END:VCALENDAR`,
     });
 
-    return {
-        url: calendarObject.url,
-        displayName: data.name,
-        timezone: data.timezone || 'UTC',
-    } as ICalendarResponse;
+    const newCalendar = {
+        url: `${homeUrl}/${data.displayName}/`,
+        displayName: data.displayName,
+        timezone: data.timezone,
+        color: data.color,
+        description: data.description,
+    };
+
+    return newCalendar as DAVCalendar;
 }
 
 export async function deleteCalendar(
-    context: CalDavFunction,
+    context: IExecuteFunctions,
     calendarName: string,
 ): Promise<{ success: boolean }> {
     const client = await initClient(context);

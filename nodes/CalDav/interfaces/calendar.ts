@@ -1,28 +1,26 @@
-import { DAVCalendar } from 'tsdav';
-import { IDataObject, GenericValue } from 'n8n-workflow';
+import { IDataObject } from 'n8n-workflow';
 
-export interface ICalendarCreate {
-    name: string;
-    timezone?: string;
+export interface ICalendarBase {
+    displayName: string;
     color?: string;
+    timezone?: string;
     description?: string;
 }
 
-export interface ICalendarUpdate {
-    name?: string;
-    timezone?: string;
+export interface ICalendarCreate extends ICalendarBase {
+    // Zusätzliche Felder für die Kalendererstellung
 }
 
-export interface ICalendarResponse extends DAVCalendar, IDataObject {
-    id: string;
-    name: string;
-    timezone?: string;
-    color?: string;
-    description?: string;
+export interface ICalendarUpdate extends ICalendarBase {
+    // Zusätzliche Felder für die Kalenderaktualisierung
+}
+
+export interface ICalendarResponse extends ICalendarBase, IDataObject {
     url: string;
+    ctag: string;
+    resourcetype: string[];
     owner?: string;
-    isShared?: boolean;
-    permissions?: string[];
+    [key: string]: IDataObject | string | string[] | undefined;
 }
 
 export interface IEventCreate {
