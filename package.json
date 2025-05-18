@@ -16,6 +16,9 @@
     "url": "git+https://github.com/that-one-tom/n8n-nodes-caldav.git"
   },
   "main": "index.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "build": "tsc && gulp build:icons",
     "dev": "tsc --watch",
@@ -42,8 +45,8 @@
     "@typescript-eslint/parser": "~5.45",
     "eslint-plugin-n8n-nodes-base": "^1.11.0",
     "gulp": "^4.0.2",
-    "n8n-core": "1.82.0",
-    "n8n-workflow": "1.82.0",
+    "n8n-core": "1.5.0",
+    "n8n-workflow": "1.5.0",
     "prettier": "^2.7.1",
     "typescript": "~4.8.4"
   },
