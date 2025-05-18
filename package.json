@@ -20,7 +20,7 @@
   },
   "main": "index.js",
   "scripts": {
-    "build": "tsc && gulp build:icons",
+    "build": "tsc && gulp build",
     "dev": "tsc --watch",
     "format": "prettier --write .",
     "lint": "eslint 'nodes/**/*.ts' 'credentials/**/*.ts'",
@@ -28,7 +28,8 @@
     "prepublishOnly": "npm run build && npm run lint"
   },
   "files": [
-    "dist"
+    "dist",
+    "index.js"
   ],
   "n8n": {
     "n8nNodesApiVersion": 1,
@@ -53,6 +54,9 @@
     "node-ical": "^0.20.1",
     "tsdav": "^2.0.3",
     "uuid": "^11.1.0"
+  },
+  "peerDependencies": {
+    "n8n-workflow": ">=1.0.0"
   },
   "eslintConfig": {
     "root": true,
