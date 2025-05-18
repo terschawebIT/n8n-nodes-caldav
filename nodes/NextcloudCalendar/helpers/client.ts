@@ -8,7 +8,7 @@ import { DAVClient } from 'tsdav';
 export async function initClient(
     context: IExecuteFunctions | ILoadOptionsFunctions,
 ) {
-    const credentials = await context.getCredentials('calDavBasicAuth');
+    const credentials = await context.getCredentials('nextcloudCalendarApi');
 
     // Nextcloud-spezifische URL-Anpassung
     let serverUrl = credentials.serverUrl as string;

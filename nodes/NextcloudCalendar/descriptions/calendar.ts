@@ -13,22 +13,22 @@ export const calendarOperations: INodeProperties[] = [
         },
         options: [
             {
-                name: 'Kalender erstellen',
+                name: 'Kalender Erstellen',
                 value: 'create',
                 description: 'Einen neuen Nextcloud-Kalender erstellen',
-                action: 'Einen neuen Kalender erstellen',
+                action: 'Einen neuen kalender erstellen',
             },
             {
-                name: 'Kalender löschen',
+                name: 'Kalender Löschen',
                 value: 'delete',
                 description: 'Einen bestehenden Nextcloud-Kalender löschen',
-                action: 'Einen Kalender löschen',
+                action: 'Einen kalender l schen',
             },
             {
-                name: 'Alle Kalender abrufen',
+                name: 'Get Many',
                 value: 'getAll',
                 description: 'Liste aller verfügbaren Nextcloud-Kalender abrufen',
-                action: 'Alle Kalender abrufen',
+                action: 'Alle kalender abrufen',
             },
         ],
         default: 'create',
@@ -68,7 +68,7 @@ export const calendarFields: INodeProperties[] = [
                 name: 'timezone',
                 type: 'string',
                 default: 'Europe/Berlin',
-                description: 'Zeitzone für den Kalender (z.B. Europe/Berlin)',
+                description: 'Zeitzone für den Kalender (z.B. Europe/Berlin).',
             },
             {
                 displayName: 'Farbe',

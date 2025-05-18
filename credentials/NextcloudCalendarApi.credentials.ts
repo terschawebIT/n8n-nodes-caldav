@@ -7,24 +7,26 @@ import {
 	INodeProperties,
 } from 'n8n-workflow';
 
-export class CalDavBasicAuth implements ICredentialType {
-	name = 'calDavBasicAuth';
-	displayName = 'CalDAV Basic Auth';
+export class NextcloudCalendarApi implements ICredentialType {
+	name = 'nextcloudCalendarApi';
+	displayName = 'Nextcloud Calendar API';
 	properties: INodeProperties[] = [
 		{
 			displayName: 'Server URL',
 			name: 'serverUrl',
 			type: 'string',
-			default: 'https://posteo.de:8443/calendars/max.muster/default',
+			default: 'https://ihre-nextcloud-instanz.de/remote.php/dav/calendars/benutzername/kalender-id',
+			placeholder: 'https://cloud.example.com/remote.php/dav',
 		},
         {
-            displayName: 'Username',
+            displayName: 'Benutzername',
             name: 'username',
             type: 'string',
-            default: 'max.muster@posteo.de',
+            default: '',
+            placeholder: 'benutzername',
         },
         {
-            displayName: 'Password',
+            displayName: 'Passwort',
             name: 'password',
             type: 'string',
             typeOptions: {

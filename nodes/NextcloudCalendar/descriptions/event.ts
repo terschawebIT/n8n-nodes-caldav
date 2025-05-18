@@ -110,49 +110,49 @@ export const eventOperations: INodeProperties[] = [
         },
         options: [
             {
-                name: 'Nächste Termine anzeigen',
+                name: 'Nächste Termine Anzeigen',
                 value: 'nextEvents',
                 description: 'Zeigt anstehende Termine',
                 action: 'Show upcoming events',
                 codex: nextEventsCodex
             },
             {
-                name: 'Termin erstellen',
+                name: 'Termin Erstellen',
                 value: 'create',
                 description: 'Erstellt einen neuen Termin',
                 action: 'Create a new event',
                 codex: createEventCodex
             },
             {
-                name: 'Termin ändern',
+                name: 'Termin Ändern',
                 value: 'update',
                 description: 'Ändert einen bestehenden Termin',
                 action: 'Update an existing event',
                 codex: updateEventCodex
             },
             {
-                name: 'Termin löschen',
+                name: 'Termin Löschen',
                 value: 'delete',
                 description: 'Löscht einen Termin',
                 action: 'Delete an event',
                 codex: deleteEventCodex
             },
             {
-                name: 'Termine suchen',
+                name: 'Termine Suchen',
                 value: 'find',
                 description: 'Sucht nach bestimmten Terminen',
                 action: 'Find events',
                 codex: findEventsCodex
             },
             {
-                name: 'Auf Einladung antworten',
+                name: 'Auf Einladung Antworten',
                 value: 'respond',
                 description: 'Beantwortet eine Termineinladung',
                 action: 'Respond to invitation',
                 codex: respondToEventCodex
             },
             {
-                name: 'Verfügbarkeit prüfen',
+                name: 'Verfügbarkeit Prüfen',
                 value: 'checkAvailability',
                 description: 'Prüft Verfügbarkeit von Teilnehmern/Ressourcen',
                 action: 'Check availability',
@@ -188,7 +188,7 @@ export const eventFields: INodeProperties[] = [
         },
         default: '',
         required: true,
-        description: 'Select the calendar to operate on. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>.',
+        description: 'Select the calendar to operate on. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
         codex: {
             type: 'string',
             summary: 'The calendar containing the events',

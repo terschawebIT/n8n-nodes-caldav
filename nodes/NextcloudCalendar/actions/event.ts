@@ -1,11 +1,7 @@
-import { CalDavFunction } from '../interfaces/common';
-import { IEventCreate, IEventUpdate, IEventResponse } from '../interfaces/event';
-import { initClient } from '../helpers/client';
-import { findCalendar } from './calendar';
-import { formatEvent } from '../helpers/formatter';
-import { parseEventResults } from '../helpers/parser';
 import { IExecuteFunctions } from 'n8n-workflow';
-import { DAVClient, DAVCalendar } from 'tsdav';
+import { initClient } from '../helpers/client';
+import { IEventCreate, IEventUpdate, IEventResponse } from '../interfaces/event';
+import { findCalendar } from './calendar';
 import { parseICalEvent } from '../helpers/parser';
 
 export async function getEvents(
@@ -198,7 +194,7 @@ export async function deleteEvent(
 }
 
 export async function searchEvents(
-    context: CalDavFunction,
+    context: IExecuteFunctions,
     calendarName: string,
     searchTerm: string,
     start: string,

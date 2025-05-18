@@ -20,34 +20,34 @@ import { parseNextcloudResponse } from './helpers/nextcloud';
 import { ICalendarCreate } from './interfaces/calendar';
 import { IEventCreate, IEventUpdate } from './interfaces/event';
 
-export class CalDav implements INodeType {
+export class NextcloudCalendar implements INodeType {
     description: INodeTypeDescription = {
-        displayName: 'CalDAV',
-        name: 'calDav',
+        displayName: 'Nextcloud Calendar',
+        name: 'nextcloudCalendar',
         icon: 'file:caldav.svg',
         group: ['transform'],
         version: 1,
         subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
         description: 'Verwalten Sie Ihre Kalender und Termine mit Nextcloud CalDAV',
         defaults: {
-            name: 'CalDAV',
+            name: 'Nextcloud Calendar',
         },
-        inputs: [{ type: NodeConnectionType.Main }],
-        outputs: [{ type: NodeConnectionType.Main }],
+        inputs: ['main'],
+        outputs: ['main'],
         credentials: [
             {
-                name: 'calDavBasicAuth',
+                name: 'nextcloudCalendarApi',
                 required: true,
-                displayName: 'CalDAV Zugangsdaten',
+                displayName: 'Nextcloud Calendar API',
             },
         ],
         usableAsTool: true,
-        noDataExpression: true,
         properties: [
             {
                 displayName: 'Ressource',
                 name: 'resource',
                 type: 'options',
+                noDataExpression: true,
                 options: [
                     {
                         name: 'Kalender',
@@ -72,20 +72,6 @@ export class CalDav implements INodeType {
                 default: {},
                 options: [
                     {
-                        displayName: 'Hide Event Export',
-                        name: 'hideEventExport',
-                        type: 'boolean',
-                        default: false,
-                        description: 'Whether to hide the export buttons in the user interface',
-                    },
-                    {
-                        displayName: 'Send Invitations',
-                        name: 'sendInvitations',
-                        type: 'boolean',
-                        default: true,
-                        description: 'Whether to send invitations to participants',
-                    },
-                    {
                         displayName: 'Enable Notifications',
                         name: 'enableNotifications',
                         type: 'boolean',
@@ -102,21 +88,23 @@ export class CalDav implements INodeType {
                     {
                         displayName: 'Force Event Alarm Type',
                         name: 'forceEventAlarmType',
-                        type: 'options',
-                        options: [
-                            {
-                                name: 'Email',
-                                value: 'EMAIL',
-                                description: 'Send reminders via email',
-                            },
-                            {
-                                name: 'Display',
-                                value: 'DISPLAY',
-                                description: 'Show reminders as system notifications',
-                            },
-                        ],
-                        default: 'DISPLAY',
-                        description: 'The type of event reminders to use',
+                        type: 'boolean',
+                        default: false,
+                        description: 'Whether to force a specific alarm type for events',
+                    },
+                    {
+                        displayName: 'Hide Event Export',
+                        name: 'hideEventExport',
+                        type: 'boolean',
+                        default: false,
+                        description: 'Whether to hide the export buttons in the user interface',
+                    },
+                    {
+                        displayName: 'Send Invitations',
+                        name: 'sendInvitations',
+                        type: 'boolean',
+                        default: true,
+                        description: 'Whether to send invitations to participants',
                     },
                 ],
             },
