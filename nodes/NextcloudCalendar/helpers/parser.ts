@@ -26,7 +26,6 @@ function parseICalDate(date: string): Date {
 function parseICS(icsData: string): any {
     const lines = icsData.split('\n').map(line => line.trim());
     const event: any = {};
-    let currentArray: string[] = [];
     
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
