@@ -12,27 +12,30 @@ export class NextcloudCalendarApi implements ICredentialType {
 	displayName = 'Nextcloud Calendar API';
 	properties: INodeProperties[] = [
 		{
-			displayName: 'Server URL',
+			displayName: 'Nextcloud URL',
 			name: 'serverUrl',
 			type: 'string',
-			default: 'https://ihre-nextcloud-instanz.de/remote.php/dav/calendars/benutzername/kalender-id',
-			placeholder: 'https://cloud.example.com/remote.php/dav',
+			default: 'https://cloud.example.com',
+			placeholder: 'https://ihre-nextcloud-instanz.de',
+			description: 'Die URL Ihrer Nextcloud-Instanz (ohne /remote.php/dav/)',
 		},
         {
             displayName: 'Benutzername',
             name: 'username',
             type: 'string',
             default: '',
-            placeholder: 'benutzername',
+            placeholder: 'max.mustermann',
+            description: 'Ihr Nextcloud Benutzername',
         },
         {
-            displayName: 'Passwort',
+            displayName: 'Passwort oder App-Passwort',
             name: 'password',
             type: 'string',
             typeOptions: {
                 password: true,
             },
             default: '',
+            description: 'Ihr Nextcloud Passwort oder ein App-Passwort (empfohlen)',
         },
 	];
 }

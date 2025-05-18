@@ -6,18 +6,17 @@
     "n8n-community-node-package",
     "n8n-node-nextcloud",
     "nextcloud",
-    "calendar",
-    "caldav"
+    "calendar"
   ],
   "license": "MIT",
   "homepage": "https://n8n.io",
   "author": {
     "name": "Niko Terschawetz",
-    "email": ""
+    "email": "nt@terschaweb.de"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yourusername/n8n-nodes-nextcloud-calendar.git"
+    "url": "git+https://github.com/terschawebIT/n8n-nodes-nextcloud-calendar.git"
   },
   "main": "index.js",
   "scripts": {
@@ -26,7 +25,7 @@
     "format": "prettier --write .",
     "lint": "eslint 'nodes/**/*.ts' 'credentials/**/*.ts'",
     "lintfix": "eslint 'nodes/**/*.ts' 'credentials/**/*.ts' --fix",
-    "prepublishOnly": "npm run build && npm run lint -c .eslintrc.prepublish.js"
+    "prepublishOnly": "npm run build && npm run lint"
   },
   "files": [
     "dist"
@@ -41,9 +40,7 @@
     ]
   },
   "devDependencies": {
-    "@types/express": "^4.17.17",
     "@types/node": "^18.16.3",
-    "@types/request-promise-native": "^1.0.18",
     "@typescript-eslint/parser": "^5.59.2",
     "eslint-plugin-n8n-nodes-base": "^1.14.1",
     "gulp": "^5.0.0",
@@ -53,8 +50,52 @@
   },
   "dependencies": {
     "@types/uuid": "^10.0.0",
-    "node-ical": "^0.20.1",
     "tsdav": "^2.0.3",
     "uuid": "^11.1.0"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "browser": true,
+      "es6": true,
+      "node": true
+    },
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+      "project": ["./tsconfig.json"],
+      "sourceType": "module",
+      "extraFileExtensions": [".json"]
+    },
+    "ignorePatterns": ["**/*.js", "**/node_modules/**", "**/dist/**"],
+    "overrides": [
+      {
+        "files": ["package.json"],
+        "plugins": ["eslint-plugin-n8n-nodes-base"],
+        "extends": ["plugin:n8n-nodes-base/community"],
+        "rules": {
+          "n8n-nodes-base/community-package-json-name-still-default": "off",
+          "n8n-nodes-base/community-package-json-license-not-default": "off"
+        }
+      },
+      {
+        "files": ["./credentials/**/*.ts"],
+        "plugins": ["eslint-plugin-n8n-nodes-base"],
+        "extends": ["plugin:n8n-nodes-base/credentials"],
+        "rules": {
+          "n8n-nodes-base/cred-class-field-documentation-url-missing": "off",
+          "n8n-nodes-base/cred-class-field-documentation-url-miscased": "off"
+        }
+      },
+      {
+        "files": ["./nodes/**/*.ts"],
+        "plugins": ["eslint-plugin-n8n-nodes-base"],
+        "extends": ["plugin:n8n-nodes-base/nodes"],
+        "rules": {
+          "n8n-nodes-base/node-execute-block-missing-continue-on-fail": "off",
+          "n8n-nodes-base/node-resource-description-filename-against-convention": "off",
+          "n8n-nodes-base/node-param-fixed-collection-type-unsorted-items": "off"
+        }
+      }
+    ]
   }
 }

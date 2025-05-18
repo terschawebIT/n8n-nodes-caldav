@@ -1,6 +1,6 @@
 import { IExecuteFunctions, ILoadOptionsFunctions } from 'n8n-workflow';
 
-export type CalDavFunction = IExecuteFunctions | ILoadOptionsFunctions;
+export type NextcloudCalendarFunction = IExecuteFunctions | ILoadOptionsFunctions;
 
 export interface ICredentials {
     serverUrl: string;

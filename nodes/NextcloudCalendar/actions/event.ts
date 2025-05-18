@@ -77,7 +77,7 @@ export async function createEvent(
 
     const event = {
         ...data,
-        uid: `n8n-${Date.now()}@caldav`,
+        uid: `n8n-${Date.now()}@nextcloud-calendar`,
     };
 
     const response = await client.createCalendarObject({
@@ -215,7 +215,7 @@ export async function searchEvents(
 function generateICalString(event: any) {
     return `BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//n8n//CalDAV Node//EN
+PRODID:-//n8n//Nextcloud Calendar Node//EN
 BEGIN:VEVENT
 UID:${event.uid}
 DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z

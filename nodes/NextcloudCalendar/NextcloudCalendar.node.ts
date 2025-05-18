@@ -1,4 +1,6 @@
 /* eslint-disable n8n-nodes-base/node-class-description-credentials-name-unsuffixed */
+/* eslint-disable n8n-nodes-base/node-class-description-inputs-wrong-regular-node */
+/* eslint-disable n8n-nodes-base/node-class-description-outputs-wrong */
 
 import {
     IExecuteFunctions,
@@ -24,7 +26,7 @@ export class NextcloudCalendar implements INodeType {
     description: INodeTypeDescription = {
         displayName: 'Nextcloud Calendar',
         name: 'nextcloudCalendar',
-        icon: 'file:caldav.svg',
+        icon: 'file:nextcloud-calendar.svg',
         group: ['transform'],
         version: 1,
         subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
@@ -32,8 +34,8 @@ export class NextcloudCalendar implements INodeType {
         defaults: {
             name: 'Nextcloud Calendar',
         },
-        inputs: ['main'],
-        outputs: ['main'],
+        inputs: [{ type: NodeConnectionType.Main }],
+        outputs: [{ type: NodeConnectionType.Main }],
         credentials: [
             {
                 name: 'nextcloudCalendarApi',
