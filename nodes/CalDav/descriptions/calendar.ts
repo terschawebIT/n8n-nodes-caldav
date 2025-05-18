@@ -2,45 +2,81 @@ import { INodeProperties } from 'n8n-workflow';
 import { ICodex } from '../interfaces/ICodex';
 
 // Definiere die Codex-Typen für die Kalender-Operationen
+const listCalendarsCodex: ICodex = {
+    type: 'action',
+    summary: 'Kalender anzeigen',
+    description: 'Zeigt eine Übersicht aller verfügbaren Kalender mit ihren Eigenschaften wie Name, Farbe, Zeitzone und Freigaben.',
+    examples: [
+        'Zeige alle meine Kalender',
+        'Welche Kalender sind verfügbar?',
+        'Liste die Team-Kalender auf',
+        'Zeige geteilte Kalender',
+        'Welche Kalender kann ich bearbeiten?'
+    ]
+};
+
 const createCalendarCodex: ICodex = {
     type: 'action',
-    summary: 'Erstelle einen neuen Kalender',
-    description: 'Erstellt einen neuen Kalender auf dem CalDAV-Server mit Namen und optionaler Zeitzone',
+    summary: 'Kalender erstellen',
+    description: 'Erstellt einen neuen Kalender mit anpassbaren Einstellungen für Name, Farbe, Zeitzone und Zugriffsrechte.',
     examples: [
-        'Erstelle einen Arbeitskalender',
-        'Lege einen neuen Kalender "Urlaub 2024" an',
-        'Erstelle einen Kalender für das Team mit Zeitzone Europe/Berlin'
+        'Erstelle einen neuen Kalender "Projekt Alpha"',
+        'Lege einen Team-Kalender an',
+        'Erstelle einen privaten Kalender',
+        'Neuer Kalender mit Zeitzone Europe/Berlin',
+        'Erstelle einen geteilten Kalender für das Marketing-Team'
+    ]
+};
+
+const configureCalendarCodex: ICodex = {
+    type: 'action',
+    summary: 'Kalender konfigurieren',
+    description: 'Passt die Einstellungen eines bestehenden Kalenders an, einschließlich Name, Farbe, Zeitzone, Benachrichtigungen und Freigaben.',
+    examples: [
+        'Ändere die Farbe des Team-Kalenders auf Blau',
+        'Stelle die Zeitzone auf Europe/Berlin',
+        'Aktiviere Benachrichtigungen für neue Termine',
+        'Passe die Standardansicht an',
+        'Ändere den Kalendernamen'
+    ]
+};
+
+const shareCalendarCodex: ICodex = {
+    type: 'action',
+    summary: 'Kalender freigeben',
+    description: 'Verwaltet die Freigaben und Berechtigungen für einen Kalender. Ermöglicht das Teilen mit einzelnen Personen oder Gruppen.',
+    examples: [
+        'Teile den Kalender mit dem Team',
+        'Gib Sarah Zugriff auf den Projektkalender',
+        'Mache den Kalender öffentlich lesbar',
+        'Entferne die Freigabe für Max',
+        'Ändere Toms Rechte auf "nur lesen"'
+    ]
+};
+
+const subscribeCalendarCodex: ICodex = {
+    type: 'action',
+    summary: 'Kalender abonnieren',
+    description: 'Fügt einen externen Kalender hinzu, wie Feiertage, Teamkalender oder öffentliche Veranstaltungen.',
+    examples: [
+        'Abonniere den Feiertagskalender',
+        'Füge den Team-Kalender hinzu',
+        'Importiere den Urlaubskalender',
+        'Verbinde mit einem öffentlichen Kalender',
+        'Abonniere den Geburstagskalender'
     ]
 };
 
 const deleteCalendarCodex: ICodex = {
     type: 'action',
-    summary: 'Lösche einen Kalender',
-    description: 'Entfernt einen Kalender und alle darin enthaltenen Termine dauerhaft vom Server',
+    summary: 'Kalender löschen',
+    description: 'Entfernt einen Kalender und alle seine Termine. Bei geteilten Kalendern werden auch alle Freigaben aufgehoben.',
     examples: [
-        'Lösche den Kalender "Alte Meetings"',
-        'Entferne den Projektkalender 2023'
-    ]
-};
-
-const getCalendarCodex: ICodex = {
-    type: 'action',
-    summary: 'Hole Kalender-Details',
-    description: 'Ruft detaillierte Informationen über einen bestimmten Kalender ab, einschließlich Name, Zeitzone und Einstellungen',
-    examples: [
-        'Zeige mir die Details des Team-Kalenders',
-        'Welche Einstellungen hat der Kalender "Meetings"?'
-    ]
-};
-
-const getAllCalendarsCodex: ICodex = {
-    type: 'action',
-    summary: 'Liste alle verfügbaren Kalender',
-    description: 'Zeigt eine Liste aller zugänglichen Kalender mit ihren Namen und Eigenschaften',
-    examples: [
-        'Zeige alle meine Kalender',
-        'Liste verfügbare Kalender auf',
-        'Welche Kalender habe ich?'
+        'Lösche den alten Projektkalender',
+        'Entferne den nicht mehr benötigten Kalender',
+        'Lösche meinen Test-Kalender',
+        'Entferne den abgelaufenen Kalender',
+        'Lösche den privaten Kalender'
     ]
 };
 
@@ -57,35 +93,49 @@ export const calendarOperations: INodeProperties[] = [
         },
         options: [
             {
-                name: 'Create',
+                name: 'Kalender anzeigen',
+                value: 'list',
+                description: 'Zeigt verfügbare Kalender',
+                action: 'List calendars',
+                codex: listCalendarsCodex
+            },
+            {
+                name: 'Kalender erstellen',
                 value: 'create',
-                description: 'Erstelle einen neuen Kalender',
-                action: 'Create a calendar',
+                description: 'Erstellt einen neuen Kalender',
+                action: 'Create calendar',
                 codex: createCalendarCodex
             },
             {
-                name: 'Delete',
+                name: 'Kalender konfigurieren',
+                value: 'configure',
+                description: 'Passt Kalendereinstellungen an',
+                action: 'Configure calendar',
+                codex: configureCalendarCodex
+            },
+            {
+                name: 'Kalender freigeben',
+                value: 'share',
+                description: 'Verwaltet Kalenderfreigaben',
+                action: 'Share calendar',
+                codex: shareCalendarCodex
+            },
+            {
+                name: 'Kalender abonnieren',
+                value: 'subscribe',
+                description: 'Fügt externen Kalender hinzu',
+                action: 'Subscribe to calendar',
+                codex: subscribeCalendarCodex
+            },
+            {
+                name: 'Kalender löschen',
                 value: 'delete',
-                description: 'Lösche einen Kalender',
-                action: 'Delete a calendar',
+                description: 'Entfernt einen Kalender',
+                action: 'Delete calendar',
                 codex: deleteCalendarCodex
-            },
-            {
-                name: 'Get',
-                value: 'get',
-                description: 'Hole Kalender-Details',
-                action: 'Get a calendar',
-                codex: getCalendarCodex
-            },
-            {
-                name: 'Get Many',
-                value: 'getAll',
-                description: 'Liste alle Kalender auf',
-                action: 'Get many calendars',
-                codex: getAllCalendarsCodex
-            },
+            }
         ],
-        default: 'create',
+        default: 'list',
     },
 ];
 

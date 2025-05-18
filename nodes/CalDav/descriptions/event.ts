@@ -2,68 +2,91 @@ import { INodeProperties } from 'n8n-workflow';
 import { ICodex } from '../interfaces/ICodex';
 
 // Definiere die Codex-Typen für die Event-Operationen
+const nextEventsCodex: ICodex = {
+    type: 'action',
+    summary: 'Zeige nächste Termine',
+    description: 'Zeigt die nächsten anstehenden Termine. Standardmäßig werden die Termine der nächsten 7 Tage angezeigt, der Zeitraum kann aber angepasst werden.',
+    examples: [
+        'Was sind meine nächsten Termine?',
+        'Zeige mir die Termine für heute',
+        'Was steht diese Woche noch an?',
+        'Wann ist mein nächstes Meeting?',
+        'Liste alle Termine für morgen'
+    ]
+};
+
 const createEventCodex: ICodex = {
     type: 'action',
-    summary: 'Erstelle einen neuen Kalendereintrag',
-    description: 'Erstellt einen neuen Termin im Kalender mit Titel, Start- und Endzeit, optional auch mit Beschreibung, Ort und Teilnehmern',
+    summary: 'Neuen Termin erstellen',
+    description: 'Erstellt einen neuen Termin. Unterstützt Einzeltermine, Serientermine, ganztägige Events und Online-Meetings mit automatischer Videokonferenz-Erstellung.',
     examples: [
-        'Erstelle einen Meeting-Termin für morgen von 10 bis 11 Uhr',
-        'Plane einen Geburtstagstermin für den 15. Mai',
-        'Füge einen Termin für das Teammeeting nächste Woche Dienstag ein'
-    ]
-};
-
-const deleteEventCodex: ICodex = {
-    type: 'action',
-    summary: 'Lösche einen Kalendereintrag',
-    description: 'Entfernt einen bestimmten Termin aus dem Kalender anhand seiner ID',
-    examples: [
-        'Lösche den Termin mit der ID abc123',
-        'Entferne den Meeting-Termin von morgen'
-    ]
-};
-
-const getEventCodex: ICodex = {
-    type: 'action',
-    summary: 'Hole Details eines Kalendereintrags',
-    description: 'Ruft alle Details eines bestimmten Termins ab, einschließlich Titel, Zeit, Beschreibung und Teilnehmer',
-    examples: [
-        'Zeige mir die Details des nächsten Team-Meetings',
-        'Was sind die Details für den Termin morgen um 10 Uhr?'
-    ]
-};
-
-const getAllEventsCodex: ICodex = {
-    type: 'action',
-    summary: 'Liste alle Termine in einem Zeitraum',
-    description: 'Zeigt alle Termine innerhalb eines bestimmten Zeitraums an, standardmäßig die nächsten 7 Tage wenn kein Zeitraum angegeben ist',
-    examples: [
-        'Zeige alle Termine für nächste Woche',
-        'Liste die Termine zwischen dem 1. und 15. Mai',
-        'Was sind meine nächsten Termine?',
-        'Welche Termine stehen diese Woche noch an?'
-    ]
-};
-
-const searchEventsCodex: ICodex = {
-    type: 'action',
-    summary: 'Suche nach Terminen',
-    description: 'Durchsucht den Kalender nach Terminen, die bestimmte Suchbegriffe im Titel oder in der Beschreibung enthalten',
-    examples: [
-        'Finde alle Team-Meeting Termine',
-        'Suche nach Terminen mit "Projekt" im Titel',
-        'Zeige mir alle Geburtstagstermine'
+        'Erstelle einen Termin "Team-Meeting" morgen um 10 Uhr',
+        'Plane einen ganztägigen Urlaub vom 1. bis 15. August',
+        'Erstelle einen wöchentlichen Jour-Fix jeden Montag um 9 Uhr',
+        'Neues Online-Meeting am Freitag um 14 Uhr',
+        'Trage Geburtstag von Max am 3. Mai ein'
     ]
 };
 
 const updateEventCodex: ICodex = {
     type: 'action',
-    summary: 'Aktualisiere einen Kalendereintrag',
-    description: 'Ändert die Details eines bestehenden Termins wie Titel, Zeit, Beschreibung oder Teilnehmer',
+    summary: 'Termin ändern',
+    description: 'Ändert einen bestehenden Termin. Bei Serienterminen kann gewählt werden, ob nur dieser oder alle zukünftigen Termine geändert werden sollen.',
     examples: [
-        'Verschiebe den Meeting-Termin auf 15 Uhr',
-        'Ändere den Ort des Termins auf "Konferenzraum B"',
-        'Füge einen Teilnehmer zum Meeting hinzu'
+        'Verschiebe das Meeting auf 15 Uhr',
+        'Ändere den Ort zu "Konferenzraum A"',
+        'Füge Thomas als Teilnehmer hinzu',
+        'Mache aus dem Meeting ein Online-Meeting',
+        'Verlängere den Termin um 30 Minuten'
+    ]
+};
+
+const deleteEventCodex: ICodex = {
+    type: 'action',
+    summary: 'Termin löschen',
+    description: 'Löscht einen oder mehrere Termine. Bietet Optionen zum Löschen von Einzelterminen oder ganzen Serien.',
+    examples: [
+        'Lösche den Termin morgen um 10 Uhr',
+        'Entferne alle Termine dieser Serie',
+        'Lösche das Meeting am Freitag',
+        'Entferne alle abgesagten Termine'
+    ]
+};
+
+const findEventsCodex: ICodex = {
+    type: 'action',
+    summary: 'Termine finden',
+    description: 'Durchsucht den Kalender nach bestimmten Kriterien wie Titel, Teilnehmer, Ort oder Zeitraum. Unterstützt auch komplexe Suchanfragen.',
+    examples: [
+        'Finde alle Team-Meetings im Mai',
+        'Suche Termine mit Peter',
+        'Zeige alle Online-Meetings dieser Woche',
+        'Finde Termine im Konferenzraum A',
+        'Suche nach Urlaubseinträgen'
+    ]
+};
+
+const respondToEventCodex: ICodex = {
+    type: 'action',
+    summary: 'Auf Einladung antworten',
+    description: 'Beantwortet Termineinladungen mit Zu- oder Absage. Ermöglicht auch das Hinzufügen von Kommentaren oder alternativen Terminvorschlägen.',
+    examples: [
+        'Sage für das Meeting morgen zu',
+        'Lehne den Termin am Freitag ab',
+        'Antworte mit "Vielleicht" und schlage alternative Zeit vor',
+        'Bestätige Teilnahme am Workshop'
+    ]
+};
+
+const checkAvailabilityCodex: ICodex = {
+    type: 'action',
+    summary: 'Verfügbarkeit prüfen',
+    description: 'Prüft die Verfügbarkeit von Teilnehmern oder Ressourcen für einen bestimmten Zeitraum. Hilft bei der Terminfindung.',
+    examples: [
+        'Wann sind alle Teammitglieder diese Woche verfügbar?',
+        'Ist der Konferenzraum morgen um 14 Uhr frei?',
+        'Zeige freie Zeiten für ein Meeting nächste Woche',
+        'Wann haben Peter und Marie beide Zeit?'
     ]
 };
 
@@ -80,49 +103,56 @@ export const eventOperations: INodeProperties[] = [
         },
         options: [
             {
-                name: 'Create',
+                name: 'Nächste Termine anzeigen',
+                value: 'nextEvents',
+                description: 'Zeigt anstehende Termine',
+                action: 'Show upcoming events',
+                codex: nextEventsCodex
+            },
+            {
+                name: 'Termin erstellen',
                 value: 'create',
-                description: 'Erstelle einen neuen Termin',
-                action: 'Create an event',
+                description: 'Erstellt einen neuen Termin',
+                action: 'Create a new event',
                 codex: createEventCodex
             },
             {
-                name: 'Delete',
+                name: 'Termin ändern',
+                value: 'update',
+                description: 'Ändert einen bestehenden Termin',
+                action: 'Update an existing event',
+                codex: updateEventCodex
+            },
+            {
+                name: 'Termin löschen',
                 value: 'delete',
-                description: 'Lösche einen Termin',
+                description: 'Löscht einen Termin',
                 action: 'Delete an event',
                 codex: deleteEventCodex
             },
             {
-                name: 'Get',
-                value: 'get',
-                description: 'Hole Termin-Details',
-                action: 'Get an event',
-                codex: getEventCodex
+                name: 'Termine suchen',
+                value: 'find',
+                description: 'Sucht nach bestimmten Terminen',
+                action: 'Find events',
+                codex: findEventsCodex
             },
             {
-                name: 'Get Many',
-                value: 'getAll',
-                description: 'Liste mehrere Termine auf',
-                action: 'Get many events',
-                codex: getAllEventsCodex
+                name: 'Auf Einladung antworten',
+                value: 'respond',
+                description: 'Beantwortet eine Termineinladung',
+                action: 'Respond to invitation',
+                codex: respondToEventCodex
             },
             {
-                name: 'Search',
-                value: 'search',
-                description: 'Suche nach Terminen',
-                action: 'Search for events',
-                codex: searchEventsCodex
-            },
-            {
-                name: 'Update',
-                value: 'update',
-                description: 'Aktualisiere einen Termin',
-                action: 'Update an event',
-                codex: updateEventCodex
-            },
+                name: 'Verfügbarkeit prüfen',
+                value: 'checkAvailability',
+                description: 'Prüft Verfügbarkeit von Teilnehmern/Ressourcen',
+                action: 'Check availability',
+                codex: checkAvailabilityCodex
+            }
         ],
-        default: 'create',
+        default: 'nextEvents',
     },
 ];
 
