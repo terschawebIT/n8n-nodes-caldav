@@ -5,22 +5,23 @@ export interface ICalendarBase {
     color?: string;
     timezone?: string;
     description?: string;
+    visibility?: 'private' | 'public';
 }
 
 export interface ICalendarCreate extends ICalendarBase {
-    // Zusätzliche Felder für die Kalendererstellung
+    displayName: string;
 }
 
 export interface ICalendarUpdate extends ICalendarBase {
     // Zusätzliche Felder für die Kalenderaktualisierung
 }
 
-export interface ICalendarResponse extends ICalendarBase, IDataObject {
+export interface ICalendarResponse extends ICalendarBase {
     url: string;
-    ctag: string;
-    resourcetype: string[];
-    owner?: string;
-    [key: string]: IDataObject | string | string[] | undefined;
+    ctag?: string;
+    resourcetype?: string[];
+    syncToken?: string;
+    components?: string[];
 }
 
 export interface IEventCreate {

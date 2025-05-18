@@ -38,6 +38,14 @@ export function formatNextcloudEvent(eventData: IDataObject): IDataObject {
 }
 
 export function parseNextcloudResponse(response: any): IDataObject {
+    if (!response) {
+        throw new Error('Keine Antwort vom Server erhalten');
+    }
+
+    if (typeof response !== 'object' || Object.keys(response).length === 0) {
+        throw new Error('Ungültige oder leere Antwort vom Server');
+    }
+
     const parsedResponse: IDataObject = {
         ...response,
     };
