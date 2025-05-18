@@ -4,43 +4,67 @@ import { ICodex } from '../interfaces/ICodex';
 // Definiere die Codex-Typen für die Event-Operationen
 const createEventCodex: ICodex = {
     type: 'action',
-    summary: 'Create a new calendar event',
-    description: 'Creates a new event with title, start time, end time, and optional description',
-    examples: ['Create a meeting from 2024-05-01T10:00:00Z to 2024-05-01T11:00:00Z', 'Create a birthday event with description']
+    summary: 'Erstelle einen neuen Kalendereintrag',
+    description: 'Erstellt einen neuen Termin im Kalender mit Titel, Start- und Endzeit, optional auch mit Beschreibung, Ort und Teilnehmern',
+    examples: [
+        'Erstelle einen Meeting-Termin für morgen von 10 bis 11 Uhr',
+        'Plane einen Geburtstagstermin für den 15. Mai',
+        'Füge einen Termin für das Teammeeting nächste Woche Dienstag ein'
+    ]
 };
 
 const deleteEventCodex: ICodex = {
     type: 'action',
-    summary: 'Delete an existing calendar event',
-    description: 'Removes a specific event from the calendar',
-    examples: ['Delete the event with ID "abc123"']
+    summary: 'Lösche einen Kalendereintrag',
+    description: 'Entfernt einen bestimmten Termin aus dem Kalender anhand seiner ID',
+    examples: [
+        'Lösche den Termin mit der ID abc123',
+        'Entferne den Meeting-Termin von morgen'
+    ]
 };
 
 const getEventCodex: ICodex = {
     type: 'action',
-    summary: 'Retrieve a specific calendar event',
-    description: 'Gets details about a specific event including title, time, and description',
-    examples: ['Get details of the event titled "Quarterly Review"']
+    summary: 'Hole Details eines Kalendereintrags',
+    description: 'Ruft alle Details eines bestimmten Termins ab, einschließlich Titel, Zeit, Beschreibung und Teilnehmer',
+    examples: [
+        'Zeige mir die Details des nächsten Team-Meetings',
+        'Was sind die Details für den Termin morgen um 10 Uhr?'
+    ]
 };
 
 const getAllEventsCodex: ICodex = {
     type: 'action',
-    summary: 'Retrieve multiple calendar events',
-    description: 'Gets a list of events within a specified time range',
-    examples: ['Get all events for next week', 'List events between two dates']
+    summary: 'Liste alle Termine in einem Zeitraum',
+    description: 'Zeigt alle Termine innerhalb eines bestimmten Zeitraums an, standardmäßig die nächsten 7 Tage wenn kein Zeitraum angegeben ist',
+    examples: [
+        'Zeige alle Termine für nächste Woche',
+        'Liste die Termine zwischen dem 1. und 15. Mai',
+        'Was sind meine nächsten Termine?',
+        'Welche Termine stehen diese Woche noch an?'
+    ]
 };
 
 const searchEventsCodex: ICodex = {
     type: 'action',
-    summary: 'Search events',
-    description: 'Searches for events in the calendar matching the search term'
+    summary: 'Suche nach Terminen',
+    description: 'Durchsucht den Kalender nach Terminen, die bestimmte Suchbegriffe im Titel oder in der Beschreibung enthalten',
+    examples: [
+        'Finde alle Team-Meeting Termine',
+        'Suche nach Terminen mit "Projekt" im Titel',
+        'Zeige mir alle Geburtstagstermine'
+    ]
 };
 
 const updateEventCodex: ICodex = {
     type: 'action',
-    summary: 'Update an existing calendar event',
-    description: 'Modifies event details like title, time, or description',
-    examples: ['Update the meeting time to 3pm', 'Change event location to "Conference Room B"']
+    summary: 'Aktualisiere einen Kalendereintrag',
+    description: 'Ändert die Details eines bestehenden Termins wie Titel, Zeit, Beschreibung oder Teilnehmer',
+    examples: [
+        'Verschiebe den Meeting-Termin auf 15 Uhr',
+        'Ändere den Ort des Termins auf "Konferenzraum B"',
+        'Füge einen Teilnehmer zum Meeting hinzu'
+    ]
 };
 
 export const eventOperations: INodeProperties[] = [
@@ -58,42 +82,42 @@ export const eventOperations: INodeProperties[] = [
             {
                 name: 'Create',
                 value: 'create',
-                description: 'Create a new event',
+                description: 'Erstelle einen neuen Termin',
                 action: 'Create an event',
                 codex: createEventCodex
             },
             {
                 name: 'Delete',
                 value: 'delete',
-                description: 'Delete an event',
+                description: 'Lösche einen Termin',
                 action: 'Delete an event',
                 codex: deleteEventCodex
             },
             {
                 name: 'Get',
                 value: 'get',
-                description: 'Get an event',
+                description: 'Hole Termin-Details',
                 action: 'Get an event',
                 codex: getEventCodex
             },
             {
                 name: 'Get Many',
                 value: 'getAll',
-                description: 'Get many events',
+                description: 'Liste mehrere Termine auf',
                 action: 'Get many events',
                 codex: getAllEventsCodex
             },
             {
                 name: 'Search',
                 value: 'search',
-                description: 'Search for calendar events by title or description',
+                description: 'Suche nach Terminen',
                 action: 'Search for events',
                 codex: searchEventsCodex
             },
             {
                 name: 'Update',
                 value: 'update',
-                description: 'Update an event',
+                description: 'Aktualisiere einen Termin',
                 action: 'Update an event',
                 codex: updateEventCodex
             },

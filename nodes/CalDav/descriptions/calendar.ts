@@ -1,33 +1,47 @@
 import { INodeProperties } from 'n8n-workflow';
 import { ICodex } from '../interfaces/ICodex';
 
-// Definiere die Codex-Typen für die Operationen
+// Definiere die Codex-Typen für die Kalender-Operationen
 const createCalendarCodex: ICodex = {
     type: 'action',
-    summary: 'Create a new calendar on the CalDAV server',
-    description: 'Creates a new calendar with specified name and timezone',
-    examples: ['Create a work calendar', 'Create a personal calendar with Europe/Berlin timezone']
+    summary: 'Erstelle einen neuen Kalender',
+    description: 'Erstellt einen neuen Kalender auf dem CalDAV-Server mit Namen und optionaler Zeitzone',
+    examples: [
+        'Erstelle einen Arbeitskalender',
+        'Lege einen neuen Kalender "Urlaub 2024" an',
+        'Erstelle einen Kalender für das Team mit Zeitzone Europe/Berlin'
+    ]
 };
 
 const deleteCalendarCodex: ICodex = {
     type: 'action',
-    summary: 'Delete an existing calendar from the CalDAV server',
-    description: 'Permanently removes a calendar and all its events',
-    examples: ['Delete the calendar named "Old Meetings"']
+    summary: 'Lösche einen Kalender',
+    description: 'Entfernt einen Kalender und alle darin enthaltenen Termine dauerhaft vom Server',
+    examples: [
+        'Lösche den Kalender "Alte Meetings"',
+        'Entferne den Projektkalender 2023'
+    ]
 };
 
 const getCalendarCodex: ICodex = {
     type: 'action',
-    summary: 'Retrieve calendar information from the CalDAV server',
-    description: 'Gets details about a specific calendar including its properties',
-    examples: ['Get details of the calendar named "Team Events"']
+    summary: 'Hole Kalender-Details',
+    description: 'Ruft detaillierte Informationen über einen bestimmten Kalender ab, einschließlich Name, Zeitzone und Einstellungen',
+    examples: [
+        'Zeige mir die Details des Team-Kalenders',
+        'Welche Einstellungen hat der Kalender "Meetings"?'
+    ]
 };
 
 const getAllCalendarsCodex: ICodex = {
     type: 'action',
-    summary: 'Retrieve multiple calendars from the CalDAV server',
-    description: 'Gets a list of all available calendars and their properties',
-    examples: ['Get all calendars', 'List all available calendars']
+    summary: 'Liste alle verfügbaren Kalender',
+    description: 'Zeigt eine Liste aller zugänglichen Kalender mit ihren Namen und Eigenschaften',
+    examples: [
+        'Zeige alle meine Kalender',
+        'Liste verfügbare Kalender auf',
+        'Welche Kalender habe ich?'
+    ]
 };
 
 export const calendarOperations: INodeProperties[] = [
@@ -45,28 +59,28 @@ export const calendarOperations: INodeProperties[] = [
             {
                 name: 'Create',
                 value: 'create',
-                description: 'Create a new calendar',
+                description: 'Erstelle einen neuen Kalender',
                 action: 'Create a calendar',
                 codex: createCalendarCodex
             },
             {
                 name: 'Delete',
                 value: 'delete',
-                description: 'Delete a calendar',
+                description: 'Lösche einen Kalender',
                 action: 'Delete a calendar',
                 codex: deleteCalendarCodex
             },
             {
                 name: 'Get',
                 value: 'get',
-                description: 'Get a calendar',
+                description: 'Hole Kalender-Details',
                 action: 'Get a calendar',
                 codex: getCalendarCodex
             },
             {
                 name: 'Get Many',
                 value: 'getAll',
-                description: 'Get many calendars',
+                description: 'Liste alle Kalender auf',
                 action: 'Get many calendars',
                 codex: getAllCalendarsCodex
             },
