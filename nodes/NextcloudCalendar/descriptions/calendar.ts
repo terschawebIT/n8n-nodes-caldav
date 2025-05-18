@@ -15,8 +15,8 @@ export const calendarOperations: INodeProperties[] = [
             {
                 name: 'Get Many',
                 value: 'getAll',
-                description: 'Get a list of all available Nextcloud calendars',
-                action: 'Get all calendars',
+                description: 'Get a list of many available Nextcloud calendars',
+                action: 'Get many calendars',
             },
             {
                 name: 'Create Calendar',
