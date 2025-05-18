@@ -113,6 +113,12 @@ export class NextcloudCalendar implements INodeType {
                 },
                 options: [
                     {
+                        name: 'Get Many',
+                        value: 'getAll',
+                        description: 'Sucht nach Terminen in einem Zeitraum',
+                        action: 'Find events in a time range',
+                    },
+                    {
                         name: 'Nächste Termine Anzeigen',
                         value: 'nextEvents',
                         description: 'Zeigt anstehende Termine',
@@ -141,12 +147,6 @@ export class NextcloudCalendar implements INodeType {
                         value: 'delete',
                         description: 'Löscht einen Termin',
                         action: 'Delete an event',
-                    },
-                    {
-                        name: 'Get Many',
-                        value: 'getAll',
-                        description: 'Sucht nach Terminen in einem Zeitraum',
-                        action: 'Find events in a time range',
                     },
                 ],
                 default: 'nextEvents',
@@ -440,18 +440,11 @@ export class NextcloudCalendar implements INodeType {
                 },
                 options: [
                     {
-                        displayName: 'Titel',
-                        name: 'title',
+                        displayName: 'Beschreibung',
+                        name: 'description',
                         type: 'string',
                         default: '',
-                        description: 'Neuer Titel des Termins',
-                    },
-                    {
-                        displayName: 'Start',
-                        name: 'start',
-                        type: 'dateTime',
-                        default: '',
-                        description: 'Neue Startzeit des Termins',
+                        description: 'Neue Beschreibung des Termins',
                     },
                     {
                         displayName: 'Ende',
@@ -461,18 +454,25 @@ export class NextcloudCalendar implements INodeType {
                         description: 'Neue Endzeit des Termins',
                     },
                     {
-                        displayName: 'Beschreibung',
-                        name: 'description',
-                        type: 'string',
-                        default: '',
-                        description: 'Neue Beschreibung des Termins',
-                    },
-                    {
                         displayName: 'Ort',
                         name: 'location',
                         type: 'string',
                         default: '',
                         description: 'Neuer Ort des Termins',
+                    },
+                    {
+                        displayName: 'Start',
+                        name: 'start',
+                        type: 'dateTime',
+                        default: '',
+                        description: 'Neue Startzeit des Termins',
+                    },
+                    {
+                        displayName: 'Titel',
+                        name: 'title',
+                        type: 'string',
+                        default: '',
+                        description: 'Neuer Titel des Termins',
                     },
                 ],
             },
