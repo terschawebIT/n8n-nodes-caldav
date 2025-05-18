@@ -1,12 +1,19 @@
 import { parseICS } from 'node-ical';
-import { DAVCalendarObject } from 'tsdav';
+import { DAVCalendarObject, DAVResponse } from 'tsdav';
 import { IEventResponse, IAttendee } from '../interfaces/event';
 
-export function parseEventResults(events: DAVCalendarObject[]): IEventResponse[] {
+type CalendarObjectType = DAVCalendarObject | DAVResponse;
+
+export function parseEventResults(events: CalendarObjectType[]): IEventResponse[] {
     const eventResults: IEventResponse[] = [];
 
     for (const event of events) {
-        const eventData = parseICS(event.data);
+        const data = 'data' in event ? event.data : (event as any).props?.['calendar-data']?._text;
+        if (!data) {
+            continue;
+        }
+
+        const eventData = parseICS(data);
         for (const key in eventData) {
             if (key !== 'vcalendar') {
                 const data = eventData[key] as any;
@@ -37,9 +44,12 @@ export function parseEventResults(events: DAVCalendarObject[]): IEventResponse[]
                     };
                 }
 
+                const url = 'url' in event ? event.url : (event as any).href;
+                const etag = 'etag' in event ? event.etag : (event as any).props?.getetag?._text;
+
                 eventResults.push({
-                    url: event.url,
-                    etag: event.etag || '',
+                    url: url || '',
+                    etag: etag || '',
                     uid: data.uid,
                     title: data.summary,
                     start: data.start.toISOString(),
