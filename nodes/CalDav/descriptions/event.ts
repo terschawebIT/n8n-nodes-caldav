@@ -1,4 +1,5 @@
 import { INodeProperties } from 'n8n-workflow';
+import { ICodex } from '../interfaces/ICodex';
 
 export const eventOperations: INodeProperties[] = [
     {
@@ -8,55 +9,57 @@ export const eventOperations: INodeProperties[] = [
         noDataExpression: true,
         displayOptions: {
             show: {
-                resource: [
-                    'event'
-                ],
+                resource: ['event'],
             },
         },
         options: [
             {
                 name: 'Create',
                 value: 'create',
-                description: 'Create a new calendar event',
-                action: 'Create a new event',
+                description: 'Create a new event',
+                action: 'Create an event',
                 codex: {
                     type: 'action',
-                    summary: 'Create a new event',
-                    description: 'Creates a new event in the specified calendar with title, start time, end time, and optional details.',
-                },
+                    summary: 'Create a new calendar event',
+                    description: 'Creates a new event with title, start time, end time, and optional description',
+                    examples: ['Create a meeting titled "Team Sync" from 2pm to 3pm tomorrow']
+                }
             },
             {
                 name: 'Delete',
                 value: 'delete',
-                description: 'Delete an existing calendar event',
+                description: 'Delete an event',
                 action: 'Delete an event',
                 codex: {
                     type: 'action',
-                    summary: 'Delete an event',
-                    description: 'Deletes an existing event from the specified calendar.',
-                },
+                    summary: 'Delete an existing calendar event',
+                    description: 'Removes a specific event from the calendar',
+                    examples: ['Delete the event with ID "abc123"']
+                }
             },
             {
                 name: 'Get',
                 value: 'get',
-                description: 'Get details of a specific calendar event',
-                action: 'Get a single event',
+                description: 'Get an event',
+                action: 'Get an event',
                 codex: {
                     type: 'action',
-                    summary: 'Get an event',
-                    description: 'Retrieves details of a specific event from the calendar.',
-                },
+                    summary: 'Retrieve a specific calendar event',
+                    description: 'Gets details about a specific event including title, time, and description',
+                    examples: ['Get details of the event titled "Quarterly Review"']
+                }
             },
             {
                 name: 'Get Many',
-                value: 'getMany',
-                description: 'Get a list of calendar events',
-                action: 'Get multiple events',
+                value: 'getAll',
+                description: 'Get many events',
+                action: 'Get many events',
                 codex: {
                     type: 'action',
-                    summary: 'Get all events',
-                    description: 'Retrieves a list of events from the specified calendar within the given time range.',
-                },
+                    summary: 'Retrieve multiple calendar events',
+                    description: 'Gets a list of events within a specified time range',
+                    examples: ['Get all events for next week', 'List events between two dates']
+                }
             },
             {
                 name: 'Search',
@@ -72,16 +75,17 @@ export const eventOperations: INodeProperties[] = [
             {
                 name: 'Update',
                 value: 'update',
-                description: 'Update an existing calendar event',
+                description: 'Update an event',
                 action: 'Update an event',
                 codex: {
                     type: 'action',
-                    summary: 'Update an event',
-                    description: 'Updates the details of an existing event in the calendar.',
-                },
+                    summary: 'Update an existing calendar event',
+                    description: 'Modifies event details like title, time, or description',
+                    examples: ['Update the meeting time to 3pm', 'Change event location to "Conference Room B"']
+                }
             },
         ],
-        default: 'getMany',
+        default: 'create',
     },
 ];
 

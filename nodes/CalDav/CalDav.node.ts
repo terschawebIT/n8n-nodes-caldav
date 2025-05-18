@@ -21,22 +21,23 @@ export class CalDav implements INodeType {
     description: INodeTypeDescription = {
         displayName: 'CalDAV',
         name: 'calDav',
-        icon: 'file:calDav.svg',
-        group: ['output'],
+        icon: 'file:caldav.svg',
+        group: ['transform'],
         version: 1,
-        subtitle: '={{ $parameter["operation"] + ": " + $parameter["resource"] }}',
-        description: 'Connect n8n to a CalDAV server',
+        subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
+        description: 'Create and manage calendars and events via CalDAV',
         defaults: {
             name: 'CalDAV',
         },
-        inputs: [{ type: NodeConnectionType.Main }],
-        outputs: [{ type: NodeConnectionType.Main }],
+        inputs: ['main'],
+        outputs: ['main'],
         credentials: [
             {
                 name: 'calDavBasicAuth',
                 required: true,
             },
         ],
+        usableAsTool: true,
         properties: [
             {
                 displayName: 'Resource',
