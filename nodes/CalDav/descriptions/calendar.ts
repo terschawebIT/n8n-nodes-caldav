@@ -1,5 +1,4 @@
 import { INodeProperties } from 'n8n-workflow';
-import { ICodex } from '../interfaces/ICodex';
 
 export const calendarOperations: INodeProperties[] = [
     {
