@@ -34,12 +34,40 @@ export async function getEvent(
     const client = await initClient(context);
     const calendar = await findCalendar(context, client, calendarName);
 
-    const event = await client.fetchCalendarObject({
+    const events = await client.fetchCalendarObjects({
         calendar,
-        url: eventId,
+        filters: [{
+            'comp-filter': {
+                _attributes: {
+                    name: 'VCALENDAR',
+                },
+                'comp-filter': {
+                    _attributes: {
+                        name: 'VEVENT',
+                        test: 'allof',
+                    },
+                    'prop-filter': {
+                        _attributes: {
+                            name: 'UID',
+                            test: 'equals',
+                        },
+                        'text-match': {
+                            _attributes: {
+                                'match-type': 'equals',
+                            },
+                            _text: eventId,
+                        },
+                    },
+                },
+            },
+        }],
     });
 
-    return parseEventResults([event])[0];
+    if (!events || events.length === 0) {
+        throw new Error(`Event with ID "${eventId}" not found`);
+    }
+
+    return parseEventResults(events)[0];
 }
 
 export async function createEvent(
@@ -73,12 +101,40 @@ export async function updateEvent(
     const client = await initClient(context);
     const calendar = await findCalendar(context, client, data.calendarName);
 
-    // Fetch existing event
-    const existingEvent = await client.fetchCalendarObject({
+    const events = await client.fetchCalendarObjects({
         calendar,
-        url: data.eventId,
+        filters: [{
+            'comp-filter': {
+                _attributes: {
+                    name: 'VCALENDAR',
+                },
+                'comp-filter': {
+                    _attributes: {
+                        name: 'VEVENT',
+                        test: 'allof',
+                    },
+                    'prop-filter': {
+                        _attributes: {
+                            name: 'UID',
+                            test: 'equals',
+                        },
+                        'text-match': {
+                            _attributes: {
+                                'match-type': 'equals',
+                            },
+                            _text: data.eventId,
+                        },
+                    },
+                },
+            },
+        }],
     });
 
+    if (!events || events.length === 0) {
+        throw new Error(`Event with ID "${data.eventId}" not found`);
+    }
+
+    const existingEvent = events[0];
     const existingData = parseEventResults([existingEvent])[0];
 
     const credentials = await context.getCredentials('calDavBasicAuth');
@@ -87,7 +143,6 @@ export async function updateEvent(
         displayName: credentials.username as string,
     };
 
-    // Merge existing data with updates
     const mergedData = {
         title: data.title || existingData.title,
         start: data.start || existingData.start,
@@ -101,8 +156,10 @@ export async function updateEvent(
     const iCalString = formatEvent(mergedData);
 
     const calendarObject = await client.updateCalendarObject({
-        calendarObject: existingEvent,
-        iCalString,
+        calendarObject: {
+            ...existingEvent,
+            data: iCalString,
+        },
     });
 
     return parseEventResults([calendarObject])[0];
@@ -116,9 +173,41 @@ export async function deleteEvent(
     const client = await initClient(context);
     const calendar = await findCalendar(context, client, calendarName);
 
-    await client.deleteCalendarObject({
+    const events = await client.fetchCalendarObjects({
         calendar,
-        url: eventId,
+        filters: [{
+            'comp-filter': {
+                _attributes: {
+                    name: 'VCALENDAR',
+                },
+                'comp-filter': {
+                    _attributes: {
+                        name: 'VEVENT',
+                        test: 'allof',
+                    },
+                    'prop-filter': {
+                        _attributes: {
+                            name: 'UID',
+                            test: 'equals',
+                        },
+                        'text-match': {
+                            _attributes: {
+                                'match-type': 'equals',
+                            },
+                            _text: eventId,
+                        },
+                    },
+                },
+            },
+        }],
+    });
+
+    if (!events || events.length === 0) {
+        throw new Error(`Event with ID "${eventId}" not found`);
+    }
+
+    await client.deleteCalendarObject({
+        calendarObject: events[0],
     });
 
     return { success: true };

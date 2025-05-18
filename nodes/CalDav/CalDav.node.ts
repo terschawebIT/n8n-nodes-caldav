@@ -7,6 +7,7 @@ import {
     INodePropertyOptions,
     INodeType,
     INodeTypeDescription,
+    IDataObject,
 } from 'n8n-workflow';
 
 import { calendarOperations, calendarFields } from './descriptions/calendar';
@@ -76,136 +77,118 @@ export class CalDav implements INodeType {
     };
 
     async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
+        const items = this.getInputData();
+        const returnData: IDataObject[] = [];
         const resource = this.getNodeParameter('resource', 0) as string;
         const operation = this.getNodeParameter('operation', 0) as string;
-        const results = [];
 
-        try {
-            if (resource === 'calendar') {
-                if (operation === 'create') {
-                    const name = this.getNodeParameter('calendarName', 0) as string;
-                    const additionalFields = this.getNodeParameter('additionalFields', 0, {}) as { timezone?: string };
+        for (let i = 0; i < items.length; i++) {
+            try {
+                if (resource === 'calendar') {
+                    if (operation === 'create') {
+                        const name = this.getNodeParameter('name', i) as string;
+                        const additionalFields = this.getNodeParameter('additionalFields', i) as IDataObject;
 
-                    const calendar = await calendarActions.createCalendar(this, {
-                        name,
-                        timezone: additionalFields.timezone,
-                    });
+                        const data = {
+                            name,
+                            timezone: additionalFields.timezone as string,
+                        };
 
-                    results.push({ json: calendar });
-                } else if (operation === 'delete') {
-                    const calendarName = this.getNodeParameter('calendar', 0) as string;
-                    const result = await calendarActions.deleteCalendar(this, calendarName);
-                    results.push({ json: result });
-                } else if (operation === 'get') {
-                    const calendarName = this.getNodeParameter('calendar', 0) as string;
-                    const calendars = await calendarActions.getCalendars(this);
-                    const calendar = calendars.find((cal) => cal.displayName === calendarName);
-                    if (calendar) {
-                        results.push({ json: calendar });
+                        const response = await calendarActions.createCalendar(this, data);
+                        returnData.push(response);
+
+                    } else if (operation === 'delete') {
+                        const name = this.getNodeParameter('name', i) as string;
+
+                        const response = await calendarActions.deleteCalendar(this, name);
+                        returnData.push(response);
+
+                    } else if (operation === 'getAll') {
+                        const calendars = await calendarActions.getCalendars(this);
+                        returnData.push(...calendars);
                     }
-                } else if (operation === 'getMany') {
-                    const calendars = await calendarActions.getCalendars(this);
-                    for (const calendar of calendars) {
-                        results.push({ json: calendar });
+
+                } else if (resource === 'event') {
+                    if (operation === 'create') {
+                        const calendarName = this.getNodeParameter('calendarName', i) as string;
+                        const title = this.getNodeParameter('title', i) as string;
+                        const start = this.getNodeParameter('start', i) as string;
+                        const end = this.getNodeParameter('end', i) as string;
+                        const additionalFields = this.getNodeParameter('additionalFields', i) as IDataObject;
+
+                        const eventData: IDataObject = {
+                            calendarName,
+                            title,
+                            start,
+                            end,
+                        };
+
+                        if (additionalFields.description) {
+                            eventData.description = additionalFields.description;
+                        }
+
+                        if (additionalFields.location) {
+                            eventData.location = additionalFields.location;
+                        }
+
+                        if (additionalFields.attendees) {
+                            const attendeesData = additionalFields.attendees as IDataObject;
+                            eventData.attendees = attendeesData.attendeeFields;
+                        }
+
+                        const response = await eventActions.createEvent(this, eventData as any);
+                        returnData.push(response);
+
+                    } else if (operation === 'delete') {
+                        const calendarName = this.getNodeParameter('calendarName', i) as string;
+                        const eventId = this.getNodeParameter('eventId', i) as string;
+
+                        const response = await eventActions.deleteEvent(this, calendarName, eventId);
+                        returnData.push(response);
+
+                    } else if (operation === 'get') {
+                        const calendarName = this.getNodeParameter('calendarName', i) as string;
+                        const eventId = this.getNodeParameter('eventId', i) as string;
+
+                        const event = await eventActions.getEvent(this, calendarName, eventId);
+                        returnData.push(event);
+
+                    } else if (operation === 'getAll') {
+                        const calendarName = this.getNodeParameter('calendarName', i) as string;
+                        const filters = this.getNodeParameter('filters', i) as IDataObject;
+
+                        const events = await eventActions.getEvents(this, calendarName, filters.start as string, filters.end as string);
+                        returnData.push(...events);
+
+                    } else if (operation === 'update') {
+                        const calendarName = this.getNodeParameter('calendarName', i) as string;
+                        const eventId = this.getNodeParameter('eventId', i) as string;
+                        const updateFields = this.getNodeParameter('updateFields', i) as IDataObject;
+
+                        const eventData: IDataObject = {
+                            calendarName,
+                            eventId,
+                            ...updateFields,
+                        };
+
+                        if (updateFields.attendees) {
+                            const attendeesData = updateFields.attendees as IDataObject;
+                            eventData.attendees = attendeesData.attendeeFields;
+                        }
+
+                        const response = await eventActions.updateEvent(this, eventData as any);
+                        returnData.push(response);
                     }
                 }
-            } else if (resource === 'event') {
-                const calendarName = this.getNodeParameter('calendar', 0) as string;
-
-                if (operation === 'create') {
-                    const eventData = {
-                        calendarName,
-                        title: this.getNodeParameter('eventTitle', 0) as string,
-                        start: this.getNodeParameter('start', 0) as string,
-                        end: this.getNodeParameter('end', 0) as string,
-                    };
-
-                    const additionalFields = this.getNodeParameter('additionalFields', 0, {}) as {
-                        description?: string;
-                        location?: string;
-                    };
-
-                    if (additionalFields.description) {
-                        eventData['description'] = additionalFields.description;
-                    }
-                    if (additionalFields.location) {
-                        eventData['location'] = additionalFields.location;
-                    }
-
-                    const addAttendees = this.getNodeParameter('addAttendees', 0, false) as boolean;
-                    if (addAttendees) {
-                        const attendeesData = this.getNodeParameter('attendees', 0, { attendeeFields: [] }) as { attendeeFields: any[] };
-                        if (attendeesData.attendeeFields && attendeesData.attendeeFields.length > 0) {
-                            eventData['attendees'] = attendeesData.attendeeFields;
-                        }
-                    }
-
-                    const event = await eventActions.createEvent(this, eventData);
-                    results.push({ json: event });
-                } else if (operation === 'delete') {
-                    const eventId = this.getNodeParameter('eventId', 0) as string;
-                    const result = await eventActions.deleteEvent(this, calendarName, eventId);
-                    results.push({ json: result });
-                } else if (operation === 'get') {
-                    const eventId = this.getNodeParameter('eventId', 0) as string;
-                    const event = await eventActions.getEvent(this, calendarName, eventId);
-                    results.push({ json: event });
-                } else if (operation === 'getMany') {
-                    const start = this.getNodeParameter('start', 0) as string;
-                    const end = this.getNodeParameter('end', 0) as string;
-                    const events = await eventActions.getEvents(this, calendarName, start, end);
-                    for (const event of events) {
-                        results.push({ json: event });
-                    }
-                } else if (operation === 'search') {
-                    const searchTerm = this.getNodeParameter('searchTerm', 0) as string;
-                    const start = this.getNodeParameter('start', 0) as string;
-                    const end = this.getNodeParameter('end', 0) as string;
-                    const events = await eventActions.searchEvents(this, calendarName, searchTerm, start, end);
-                    for (const event of events) {
-                        results.push({ json: event });
-                    }
-                } else if (operation === 'update') {
-                    const eventId = this.getNodeParameter('eventId', 0) as string;
-                    const eventData = {
-                        calendarName,
-                        eventId,
-                        title: this.getNodeParameter('eventTitle', 0) as string,
-                        start: this.getNodeParameter('start', 0) as string,
-                        end: this.getNodeParameter('end', 0) as string,
-                    };
-
-                    const additionalFields = this.getNodeParameter('additionalFields', 0, {}) as {
-                        description?: string;
-                        location?: string;
-                    };
-
-                    if (additionalFields.description !== undefined) {
-                        eventData['description'] = additionalFields.description;
-                    }
-                    if (additionalFields.location !== undefined) {
-                        eventData['location'] = additionalFields.location;
-                    }
-
-                    const addAttendees = this.getNodeParameter('addAttendees', 0, false) as boolean;
-                    if (addAttendees) {
-                        const attendeesData = this.getNodeParameter('attendees', 0, { attendeeFields: [] }) as { attendeeFields: any[] };
-                        if (attendeesData.attendeeFields && attendeesData.attendeeFields.length > 0) {
-                            eventData['attendees'] = attendeesData.attendeeFields;
-                        }
-                    }
-
-                    const event = await eventActions.updateEvent(this, eventData);
-                    results.push({ json: event });
+            } catch (error) {
+                if (this.continueOnFail()) {
+                    returnData.push({ error: error.message });
+                    continue;
                 }
+                throw error;
             }
-        } catch (error) {
-            if (error.message) {
-                throw new Error(`CalDAV Error: ${error.message}`);
-            }
-            throw error;
         }
 
-        return this.prepareOutputData(results);
+        return [this.helpers.returnJsonArray(returnData)];
     }
 }

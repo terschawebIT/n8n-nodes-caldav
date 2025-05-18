@@ -32,15 +32,30 @@ export async function createCalendar(
     data: ICalendarCreate,
 ): Promise<ICalendarResponse> {
     const client = await initClient(context);
-    const credentials = await context.getCredentials('calDavBasicAuth');
 
-    const calendar = await client.createCalendar({
-        name: data.name,
-        timezone: data.timezone || 'UTC',
-        serverUrl: credentials.serverUrl as string,
+    // Erstelle einen neuen Kalender als CalDAV-Sammlung
+    const calendars = await client.fetchCalendars();
+    const homeUrl = calendars[0]?.url?.split('/').slice(0, -1).join('/') || '';
+
+    const calendarObject = await client.createCalendarObject({
+        calendar: {
+            url: `${homeUrl}/${data.name}/`,
+            displayName: data.name,
+        },
+        filename: 'calendar.ics',
+        iCalString: `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//n8n//CalDAV Client//EN
+NAME:${data.name}
+X-WR-TIMEZONE:${data.timezone || 'UTC'}
+END:VCALENDAR`,
     });
 
-    return calendar;
+    return {
+        url: calendarObject.url,
+        displayName: data.name,
+        timezone: data.timezone || 'UTC',
+    } as ICalendarResponse;
 }
 
 export async function deleteCalendar(
@@ -49,6 +64,14 @@ export async function deleteCalendar(
 ): Promise<{ success: boolean }> {
     const client = await initClient(context);
     const calendar = await findCalendar(context, client, calendarName);
-    await client.deleteCalendar(calendar);
+
+    await client.deleteCalendarObject({
+        calendarObject: {
+            url: calendar.url,
+            data: '',
+            etag: '',
+        },
+    });
+
     return { success: true };
 }

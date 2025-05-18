@@ -3,6 +3,7 @@ import { CalDavFunction } from '../interfaces/common';
 
 export async function initClient(
     context: CalDavFunction,
+    contextThis?: any
 ): Promise<DAVClient> {
     const credentials = await context.getCredentials('calDavBasicAuth');
     const client = new DAVClient({

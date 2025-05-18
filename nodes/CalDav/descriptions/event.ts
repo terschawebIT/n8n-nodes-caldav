@@ -51,22 +51,15 @@ export const eventOperations: INodeProperties[] = [
 
 export const eventFields: INodeProperties[] = [
     {
-        displayName: 'Calendar',
-        name: 'calendar',
+        displayName: 'Calendar Name or ID',
+        name: 'calendarName',
         type: 'options',
         typeOptions: {
             loadOptionsMethod: 'getCalendars',
         },
-        required: true,
         default: '',
-        description: 'The calendar to operate on',
-        displayOptions: {
-            show: {
-                resource: [
-                    'event'
-                ],
-            },
-        },
+        required: true,
+        description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>',
     },
     {
         displayName: 'Event Title',

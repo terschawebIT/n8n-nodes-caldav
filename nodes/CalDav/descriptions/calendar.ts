@@ -59,26 +59,15 @@ export const calendarFields: INodeProperties[] = [
         required: true,
     },
     {
-        displayName: 'Calendar',
-        name: 'calendar',
+        displayName: 'Calendar Name or ID',
+        name: 'name',
         type: 'options',
         typeOptions: {
             loadOptionsMethod: 'getCalendars',
         },
-        displayOptions: {
-            show: {
-                resource: [
-                    'calendar'
-                ],
-                operation: [
-                    'delete',
-                    'get'
-                ],
-            },
-        },
         default: '',
-        description: 'The calendar to operate on',
         required: true,
+        description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>',
     },
     {
         displayName: 'Additional Fields',

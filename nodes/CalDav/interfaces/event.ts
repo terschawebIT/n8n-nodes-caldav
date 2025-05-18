@@ -1,9 +1,11 @@
+import { IDataObject, GenericValue } from 'n8n-workflow';
+
 export interface IAttendee {
     email: string;
     displayName?: string;
     rsvp?: boolean;
     role?: 'REQ-PARTICIPANT' | 'OPT-PARTICIPANT' | 'CHAIR';
-    status?: 'NEEDS-ACTION' | 'ACCEPTED' | 'DECLINED' | 'TENTATIVE';
+    status?: string;
 }
 
 export interface IEventBase {
@@ -19,12 +21,12 @@ export interface IEventCreate extends IEventBase {
     calendarName: string;
 }
 
-export interface IEventUpdate extends Partial<IEventBase> {
+export interface IEventUpdate extends IEventBase {
     calendarName: string;
     eventId: string;
 }
 
-export interface IEventResponse extends IEventBase {
+export interface IEventResponse extends IEventBase, IDataObject {
     url: string;
     etag: string;
     uid: string;
@@ -35,4 +37,5 @@ export interface IEventResponse extends IEventBase {
         email: string;
         displayName?: string;
     };
+    [key: string]: IDataObject | GenericValue | GenericValue[] | IDataObject[] | undefined;
 }

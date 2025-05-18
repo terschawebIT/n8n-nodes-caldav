@@ -57,9 +57,9 @@ export function parseEventResults(events: DAVCalendarObject[]): IEventResponse[]
     }
 
     return eventResults.sort((a, b) => {
-        if (a.start < b.start) {
+        if (a?.start < b?.start) {
             return -1;
-        } else if (a.start > b.start) {
+        } else if (a?.start > b?.start) {
             return 1;
         } else {
             return 0;

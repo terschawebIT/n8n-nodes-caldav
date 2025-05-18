@@ -28,45 +28,31 @@ export function formatAttendees(attendees: IAttendee[]): string[] {
     });
 }
 
-export function formatEvent(
-    eventData: {
-        title: string;
-        start: string | Date;
-        end: string | Date;
-        description?: string;
-        location?: string;
-        attendees?: IAttendee[];
-        organizer?: {
-            email: string;
-            displayName?: string;
-        };
-    },
-): string {
+export function formatEvent(data: any): string {
     const lines = [
         'BEGIN:VCALENDAR',
         'VERSION:2.0',
         'PRODID:-//n8n//CalDAV Node//EN',
         'BEGIN:VEVENT',
-        `SUMMARY:${eventData.title}`,
-        `DTSTART:${formatDateTime(eventData.start)}`,
-        `DTEND:${formatDateTime(eventData.end)}`,
+        `SUMMARY:${data.title}`,
+        `DTSTART:${new Date(data.start).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')}`,
+        `DTEND:${new Date(data.end).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')}`,
     ];
 
-    if (eventData.organizer) {
-        const organizerName = eventData.organizer.displayName || eventData.organizer.email;
-        lines.push(`ORGANIZER;CN="${organizerName}":mailto:${eventData.organizer.email}`);
+    if (data.description) {
+        lines.push(`DESCRIPTION:${data.description}`);
     }
 
-    if (eventData.description) {
-        lines.push(`DESCRIPTION:${eventData.description}`);
+    if (data.location) {
+        lines.push(`LOCATION:${data.location}`);
     }
 
-    if (eventData.location) {
-        lines.push(`LOCATION:${eventData.location}`);
+    if (data.organizer) {
+        lines.push(`ORGANIZER;CN="${data.organizer.displayName}":mailto:${data.organizer.email}`);
     }
 
-    if (eventData.attendees && eventData.attendees.length > 0) {
-        lines.push(...formatAttendees(eventData.attendees));
+    if (data.attendees && data.attendees.length > 0) {
+        lines.push(...formatAttendees(data.attendees));
     }
 
     lines.push(
