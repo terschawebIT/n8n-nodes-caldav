@@ -17,21 +17,25 @@ export const calendarOperations: INodeProperties[] = [
             {
                 name: 'Create',
                 value: 'create',
+                description: 'Create a new calendar on the CalDAV server',
                 action: 'Create a new calendar',
             },
             {
                 name: 'Delete',
                 value: 'delete',
+                description: 'Delete an existing calendar from the CalDAV server',
                 action: 'Delete a calendar',
             },
             {
                 name: 'Get',
                 value: 'get',
+                description: 'Get details of a specific calendar',
                 action: 'Get a single calendar',
             },
             {
                 name: 'Get Many',
                 value: 'getMany',
+                description: 'Get a list of all available calendars',
                 action: 'Get multiple calendars',
             },
         ],
@@ -41,7 +45,7 @@ export const calendarOperations: INodeProperties[] = [
 
 export const calendarFields: INodeProperties[] = [
     {
-        displayName: 'Calendar Name',
+        displayName: 'New Calendar Name',
         name: 'calendarName',
         type: 'string',
         displayOptions: {
@@ -55,7 +59,8 @@ export const calendarFields: INodeProperties[] = [
             },
         },
         default: '',
-        description: 'The name of the calendar to create',
+        description: 'Name for the new calendar to be created on the CalDAV server',
+        placeholder: 'My New Calendar',
         required: true,
     },
     {
@@ -78,7 +83,7 @@ export const calendarFields: INodeProperties[] = [
         },
         default: '',
         required: true,
-        description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>',
+        description: 'Select the calendar to operate on. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>',
     },
     {
         displayName: 'Additional Fields',
@@ -101,7 +106,8 @@ export const calendarFields: INodeProperties[] = [
                 name: 'timezone',
                 type: 'string',
                 default: 'UTC',
-                description: 'The timezone of the calendar',
+                description: 'The timezone for the calendar (e.g. Europe/Berlin, America/New_York)',
+                placeholder: 'UTC',
             },
         ],
     },
