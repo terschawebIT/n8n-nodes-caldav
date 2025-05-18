@@ -13,29 +13,46 @@ export const calendarOperations: INodeProperties[] = [
         },
         options: [
             {
-                name: 'Kalender Erstellen',
-                value: 'create',
-                description: 'Einen neuen Nextcloud-Kalender erstellen',
-                action: 'Einen neuen kalender erstellen',
-            },
-            {
-                name: 'Kalender Löschen',
-                value: 'delete',
-                description: 'Einen bestehenden Nextcloud-Kalender löschen',
-                action: 'Einen kalender l schen',
-            },
-            {
                 name: 'Get Many',
                 value: 'getAll',
-                description: 'Liste aller verfügbaren Nextcloud-Kalender abrufen',
-                action: 'Alle kalender abrufen',
+                description: 'Get a list of all available Nextcloud calendars',
+                action: 'Get all calendars',
+            },
+            {
+                name: 'Create Calendar',
+                value: 'create',
+                description: 'Create a new Nextcloud calendar',
+                action: 'Create a new calendar',
+            },
+            {
+                name: 'Delete Calendar',
+                value: 'delete',
+                description: 'Delete an existing Nextcloud calendar',
+                action: 'Delete a calendar',
             },
         ],
-        default: 'create',
+        default: 'getAll',
     },
 ];
 
 export const calendarFields: INodeProperties[] = [
+    {
+        displayName: 'Calendar Name or ID',
+        name: 'calendarName',
+        type: 'options',
+        typeOptions: {
+            loadOptionsMethod: 'getCalendars',
+        },
+        displayOptions: {
+            show: {
+                resource: ['calendar'],
+                operation: ['delete'],
+            },
+        },
+        default: '',
+        required: true,
+        description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+    },
     {
         displayName: 'Kalendername',
         name: 'name',
@@ -44,17 +61,18 @@ export const calendarFields: INodeProperties[] = [
         displayOptions: {
             show: {
                 resource: ['calendar'],
-                operation: ['create', 'delete'],
+                operation: ['create'],
             },
         },
         default: '',
-        description: 'Name des Nextcloud-Kalenders',
+        placeholder: 'Mein neuer Kalender',
+        description: 'Name des neuen Nextcloud-Kalenders',
     },
     {
-        displayName: 'Zusätzliche Felder',
-        name: 'additionalFields',
+        displayName: 'Kalender Einstellungen',
+        name: 'calendarSettings',
         type: 'collection',
-        placeholder: 'Feld hinzufügen',
+        placeholder: 'Einstellung hinzufügen',
         default: {},
         displayOptions: {
             show: {
@@ -83,6 +101,25 @@ export const calendarFields: INodeProperties[] = [
                 type: 'string',
                 default: '',
                 description: 'Beschreibung des Kalenders',
+            },
+            {
+                displayName: 'Sichtbarkeit',
+                name: 'visibility',
+                type: 'options',
+                options: [
+                    {
+                        name: 'Privat',
+                        value: 'private',
+                        description: 'Nur für Sie sichtbar',
+                    },
+                    {
+                        name: 'Öffentlich',
+                        value: 'public',
+                        description: 'Für alle sichtbar',
+                    },
+                ],
+                default: 'private',
+                description: 'Sichtbarkeit des Kalenders für andere Benutzer',
             },
         ],
     },

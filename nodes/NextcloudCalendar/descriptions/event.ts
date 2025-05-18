@@ -165,6 +165,50 @@ export const eventOperations: INodeProperties[] = [
 
 export const eventFields: INodeProperties[] = [
     {
+        displayName: 'Operation',
+        name: 'operation',
+        type: 'options',
+        noDataExpression: true,
+        displayOptions: {
+            show: {
+                resource: ['event'],
+            },
+        },
+        options: [
+            {
+                name: 'Nächste Termine Anzeigen',
+                value: 'nextEvents',
+                description: 'Zeigt anstehende Termine',
+                action: 'Show upcoming events',
+            },
+            {
+                name: 'Termin Ändern',
+                value: 'update',
+                description: 'Ändert einen bestehenden Termin',
+                action: 'Update an existing event',
+            },
+            {
+                name: 'Termin Erstellen',
+                value: 'create',
+                description: 'Erstellt einen neuen Termin',
+                action: 'Create a new event',
+            },
+            {
+                name: 'Termin Löschen',
+                value: 'delete',
+                description: 'Löscht einen Termin',
+                action: 'Delete an event',
+            },
+            {
+                name: 'Termine Suchen',
+                value: 'find',
+                description: 'Sucht nach bestimmten Terminen',
+                action: 'Find events',
+            },
+        ],
+        default: 'nextEvents',
+    },
+    {
         displayName: 'Calendar Name or ID',
         name: 'calendarName',
         type: 'options',
@@ -173,27 +217,91 @@ export const eventFields: INodeProperties[] = [
         },
         displayOptions: {
             show: {
-                resource: [
-                    'event'
-                ],
-                operation: [
-                    'create',
-                    'delete',
-                    'get',
-                    'getMany',
-                    'search',
-                    'update'
-                ],
+                resource: ['event'],
             },
         },
         default: '',
         required: true,
-        description: 'Select the calendar to operate on. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
-        codex: {
-            type: 'string',
-            summary: 'The calendar containing the events',
-            examples: ['Work Calendar', 'personal-calendar', 'team-events'],
+        description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+    },
+    {
+        displayName: 'Suchkriterien',
+        name: 'searchCriteria',
+        type: 'collection',
+        placeholder: 'Kriterium hinzufügen',
+        default: {},
+        displayOptions: {
+            show: {
+                resource: ['event'],
+                operation: ['find'],
+            },
         },
+        options: [
+            {
+                displayName: 'Ort',
+                name: 'location',
+                type: 'string',
+                default: '',
+                description: 'Nach Terminen an diesem Ort suchen',
+            },
+            {
+                displayName: 'Suchbegriff',
+                name: 'searchTerm',
+                type: 'string',
+                default: '',
+                description: 'Nach diesem Text wird in Titel und Beschreibung gesucht',
+            },
+            {
+                displayName: 'Teilnehmer Email',
+                name: 'attendeeEmail',
+                type: 'string',
+                default: '',
+                description: 'Nach Terminen mit diesem Teilnehmer suchen',
+            },
+            {
+                displayName: 'Zeitraum Ende',
+                name: 'timeRangeEnd',
+                type: 'dateTime',
+                default: '',
+                description: 'Enddatum für die Suche',
+            },
+            {
+                displayName: 'Zeitraum Start',
+                name: 'timeRangeStart',
+                type: 'dateTime',
+                default: '',
+                description: 'Startdatum für die Suche',
+            },
+        ],
+    },
+    {
+        displayName: 'Zeitraum',
+        name: 'timeRange',
+        type: 'collection',
+        placeholder: 'Zeitraum einstellen',
+        default: {},
+        displayOptions: {
+            show: {
+                resource: ['event'],
+                operation: ['nextEvents'],
+            },
+        },
+        options: [
+            {
+                displayName: 'Anzahl Tage',
+                name: 'days',
+                type: 'number',
+                default: 7,
+                description: 'Wie viele Tage in die Zukunft sollen angezeigt werden',
+            },
+            {
+                displayName: 'Max. Anzahl Termine',
+                name: 'maxEvents',
+                type: 'number',
+                default: 10,
+                description: 'Maximale Anzahl der anzuzeigenden Termine',
+            },
+        ],
     },
     {
         displayName: 'Event Title',
@@ -438,23 +546,5 @@ export const eventFields: INodeProperties[] = [
             },
         ],
         description: 'Attendees to add to the event',
-    },
-    {
-        displayName: 'Search Term',
-        name: 'searchTerm',
-        type: 'string',
-        displayOptions: {
-            show: {
-                resource: [
-                    'event'
-                ],
-                operation: [
-                    'search'
-                ],
-            },
-        },
-        default: '',
-        description: 'Search term to filter events by title or description',
-        required: true,
     },
 ];

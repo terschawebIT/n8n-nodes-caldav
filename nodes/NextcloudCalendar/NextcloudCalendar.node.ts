@@ -72,6 +72,12 @@ export class NextcloudCalendar implements INodeType {
                 type: 'collection',
                 placeholder: 'Nextcloud-Einstellungen hinzufügen',
                 default: {},
+                displayOptions: {
+                    show: {
+                        resource: ['event'],
+                        operation: ['create', 'update', 'respond']
+                    },
+                },
                 options: [
                     {
                         displayName: 'Enable Notifications',
@@ -93,6 +99,11 @@ export class NextcloudCalendar implements INodeType {
                         type: 'boolean',
                         default: false,
                         description: 'Whether to force a specific alarm type for events',
+                        displayOptions: {
+                            show: {
+                                enableNotifications: [true],
+                            },
+                        },
                     },
                     {
                         displayName: 'Hide Event Export',
@@ -107,6 +118,12 @@ export class NextcloudCalendar implements INodeType {
                         type: 'boolean',
                         default: true,
                         description: 'Whether to send invitations to participants',
+                        displayOptions: {
+                            show: {
+                                resource: ['event'],
+                                operation: ['create', 'update']
+                            },
+                        },
                     },
                 ],
             },
