@@ -76,3 +76,39 @@ export function parseEventResults(events: CalendarObjectType[]): IEventResponse[
         }
     });
 }
+
+export function parseICalEvent(calendarObject: DAVCalendarObject): IEventResponse {
+    const icalData = parseICS(calendarObject.data);
+    const event = Object.values(icalData)[0] as any;
+
+    return {
+        uid: event.uid,
+        title: event.summary,
+        start: event.start.toISOString(),
+        end: event.end.toISOString(),
+        description: event.description,
+        location: event.location,
+        url: calendarObject.url,
+        etag: calendarObject.etag,
+        created: event.created,
+        lastModified: event.lastModified,
+        status: event.status,
+        organizer: event.organizer ? {
+            email: event.organizer.val,
+            displayName: event.organizer.params?.CN,
+        } : undefined,
+        attendees: event.attendee ? Array.isArray(event.attendee) ?
+            event.attendee.map((a: any) => ({
+                email: a.val,
+                displayName: a.params?.CN,
+                role: a.params?.ROLE,
+                status: a.params?.PARTSTAT,
+            })) :
+            [{
+                email: event.attendee.val,
+                displayName: event.attendee.params?.CN,
+                role: event.attendee.params?.ROLE,
+                status: event.attendee.params?.PARTSTAT,
+            }] : undefined,
+    };
+}

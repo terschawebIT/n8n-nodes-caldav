@@ -4,30 +4,32 @@ import { initClient } from '../helpers/client';
 import { findCalendar } from './calendar';
 import { formatEvent } from '../helpers/formatter';
 import { parseEventResults } from '../helpers/parser';
+import { IExecuteFunctions } from 'n8n-workflow';
+import { DAVClient, DAVCalendar } from 'tsdav';
+import { parseICalEvent } from '../helpers/parser';
 
 export async function getEvents(
-    context: CalDavFunction,
+    context: IExecuteFunctions,
     calendarName: string,
     start: string,
     end: string,
-): Promise<IEventResponse[]> {
+) {
     const client = await initClient(context);
     const calendar = await findCalendar(context, client, calendarName);
 
-    const events = await client.fetchCalendarObjects({
+    const response = await client.fetchCalendarObjects({
         calendar,
         timeRange: {
-            start,
-            end,
+            start: start,
+            end: end,
         },
-        expand: true
     });
 
-    return parseEventResults(events);
+    return response.map(parseICalEvent);
 }
 
 export async function getEvent(
-    context: CalDavFunction,
+    context: IExecuteFunctions,
     calendarName: string,
     eventId: string,
 ): Promise<IEventResponse> {
@@ -67,39 +69,42 @@ export async function getEvent(
         throw new Error(`Event with ID "${eventId}" not found`);
     }
 
-    return parseEventResults(events)[0];
+    return parseICalEvent(events[0]);
 }
 
 export async function createEvent(
-    context: CalDavFunction,
+    context: IExecuteFunctions,
     data: IEventCreate,
-): Promise<IEventResponse> {
+) {
     const client = await initClient(context);
     const calendar = await findCalendar(context, client, data.calendarName);
 
-    const credentials = await context.getCredentials('calDavBasicAuth');
-    const organizer = {
-        email: credentials.username as string,
-        displayName: credentials.username as string,
+    const event = {
+        ...data,
+        uid: `n8n-${Date.now()}@caldav`,
     };
 
-    const iCalString = formatEvent({ ...data, organizer });
-
-    const calendarObject = await client.createCalendarObject({
+    const response = await client.createCalendarObject({
         calendar,
-        filename: `${Date.now()}.ics`,
-        iCalString,
+        filename: `${event.uid}.ics`,
+        iCalString: generateICalString(event),
     });
 
-    return parseEventResults([calendarObject])[0];
+    return response;
 }
 
 export async function updateEvent(
-    context: CalDavFunction,
+    context: IExecuteFunctions,
     data: IEventUpdate,
-): Promise<IEventResponse> {
+) {
     const client = await initClient(context);
     const calendar = await findCalendar(context, client, data.calendarName);
+
+    const existingEvent = await getEvent(context, data.calendarName, data.eventId);
+    const updatedEvent = {
+        ...existingEvent,
+        ...data,
+    };
 
     const events = await client.fetchCalendarObjects({
         calendar,
@@ -134,42 +139,21 @@ export async function updateEvent(
         throw new Error(`Event with ID "${data.eventId}" not found`);
     }
 
-    const existingEvent = events[0];
-    const existingData = parseEventResults([existingEvent])[0];
-
-    const credentials = await context.getCredentials('calDavBasicAuth');
-    const organizer = {
-        email: credentials.username as string,
-        displayName: credentials.username as string,
-    };
-
-    const mergedData = {
-        title: data.title || existingData.title,
-        start: data.start || existingData.start,
-        end: data.end || existingData.end,
-        description: data.description !== undefined ? data.description : existingData.description,
-        location: data.location !== undefined ? data.location : existingData.location,
-        attendees: data.attendees || existingData.attendees,
-        organizer,
-    };
-
-    const iCalString = formatEvent(mergedData);
-
-    const calendarObject = await client.updateCalendarObject({
+    const response = await client.updateCalendarObject({
         calendarObject: {
-            ...existingEvent,
-            data: iCalString,
+            ...events[0],
+            data: generateICalString(updatedEvent),
         },
     });
 
-    return parseEventResults([calendarObject])[0];
+    return response;
 }
 
 export async function deleteEvent(
-    context: CalDavFunction,
+    context: IExecuteFunctions,
     calendarName: string,
     eventId: string,
-): Promise<{ success: boolean }> {
+) {
     const client = await initClient(context);
     const calendar = await findCalendar(context, client, calendarName);
 
@@ -230,4 +214,20 @@ export async function searchEvents(
             (event.location && event.location.toLowerCase().includes(searchString))
         );
     });
+}
+
+function generateICalString(event: any) {
+    return `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//n8n//CalDAV Node//EN
+BEGIN:VEVENT
+UID:${event.uid}
+DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z
+DTSTART:${new Date(event.start).toISOString().replace(/[-:]/g, '').split('.')[0]}Z
+DTEND:${new Date(event.end).toISOString().replace(/[-:]/g, '').split('.')[0]}Z
+SUMMARY:${event.title}
+${event.description ? `DESCRIPTION:${event.description}` : ''}
+${event.location ? `LOCATION:${event.location}` : ''}
+END:VEVENT
+END:VCALENDAR`;
 }

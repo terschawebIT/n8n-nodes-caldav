@@ -37,7 +37,7 @@ export async function findCalendar(
 export async function getCalendars(
     this: ILoadOptionsFunctions | IExecuteFunctions,
 ) {
-    const client = await initClient(this, this);
+    const client = await initClient(this);
     const calendars = await client.fetchCalendars();
     return calendars;
 }
@@ -46,7 +46,7 @@ export async function createNewCalendar(
     this: IExecuteFunctions,
     calendarName: string,
 ) {
-    const client = await initClient(this, this);
+    const client = await initClient(this);
     const calendars = await client.fetchCalendars();
     const homeUrl = calendars[0]?.url?.split('/').slice(0, -1).join('/') || '';
 
@@ -71,7 +71,7 @@ export async function deleteCalendar(
     this: IExecuteFunctions,
     calendarName: string,
 ) {
-    const client = await initClient(this, this);
+    const client = await initClient(this);
     const calendar = await findCalendar.call(this, client, calendarName);
 
     await client.deleteCalendarObject({
@@ -91,7 +91,7 @@ export async function getEvents(
     start: string,
     end: string,
 ) {
-    const client = await initClient(this, this);
+    const client = await initClient(this);
     const calendar = await findCalendar.call(this, client, calendarName);
     const events = await client.fetchCalendarObjects({
         calendar,
@@ -109,7 +109,7 @@ export async function getEvent(
     calendarName: string,
     eventId: string,
 ) {
-    const client = await initClient(this, this);
+    const client = await initClient(this);
     const calendar = await findCalendar.call(this, client, calendarName);
     const events = await client.fetchCalendarObjects({
         calendar,
@@ -159,7 +159,7 @@ export async function createEvent(
         attendees?: IAttendee[];
     },
 ): Promise<any> {
-    const client = await initClient(this, this);
+    const client = await initClient(this);
     const calendar = await findCalendar.call(this, client, calendarName);
 
     const credentials = await this.getCredentials('calDavBasicAuth');
@@ -195,7 +195,7 @@ export async function updateEvent(
         attendees?: IAttendee[];
     },
 ): Promise<any> {
-    const client = await initClient(this, this);
+    const client = await initClient(this);
     const calendar = await findCalendar.call(this, client, calendarName);
 
     const events = await client.fetchCalendarObjects({
@@ -267,7 +267,7 @@ export async function deleteEvent(
     calendarName: string,
     eventId: string,
 ) {
-    const client = await initClient(this, this);
+    const client = await initClient(this);
     const calendar = await findCalendar.call(this, client, calendarName);
 
     const events = await client.fetchCalendarObjects({

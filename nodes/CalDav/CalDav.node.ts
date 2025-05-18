@@ -16,8 +16,8 @@ import { eventOperations, eventFields } from './descriptions/event';
 
 import * as calendarActions from './actions/calendar';
 import * as eventActions from './actions/event';
-import { getNextcloudHeaders, formatNextcloudEvent, parseNextcloudResponse } from './helpers/nextcloud';
-import { ICalendarCreate, ICalendarResponse } from './interfaces/calendar';
+import { parseNextcloudResponse } from './helpers/nextcloud';
+import { ICalendarCreate } from './interfaces/calendar';
 import { IEventCreate, IEventUpdate } from './interfaces/event';
 
 export class CalDav implements INodeType {
@@ -42,6 +42,7 @@ export class CalDav implements INodeType {
             },
         ],
         usableAsTool: true,
+        noDataExpression: true,
         properties: [
             {
                 displayName: 'Ressource',
@@ -145,7 +146,6 @@ export class CalDav implements INodeType {
         const returnData: INodeExecutionData[] = [];
         const resource = this.getNodeParameter('resource', 0) as string;
         const operation = this.getNodeParameter('operation', 0) as string;
-        const nextcloudSettings = this.getNodeParameter('nextcloudSettings', 0, {}) as IDataObject;
 
         for (let i = 0; i < items.length; i++) {
             try {

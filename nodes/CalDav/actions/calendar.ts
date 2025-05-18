@@ -8,7 +8,7 @@ import { initClient } from '../helpers/client';
 import { ICalendarCreate } from '../interfaces/calendar';
 
 export async function findCalendar(
-    context: ILoadOptionsFunctions | IExecuteFunctions,
+    context: IExecuteFunctions,
     client: DAVClient,
     calendarName: string,
 ): Promise<DAVCalendar> {
@@ -21,7 +21,7 @@ export async function findCalendar(
 }
 
 export async function getCalendars(
-    context: ILoadOptionsFunctions | IExecuteFunctions,
+    context: IExecuteFunctions | ILoadOptionsFunctions,
 ): Promise<DAVCalendar[]> {
     const client = await initClient(context);
     const calendars = await client.fetchCalendars();
