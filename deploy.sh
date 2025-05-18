@@ -16,11 +16,11 @@ git pull
 
 # Abhängigkeiten installieren
 echo "[2/6] Abhängigkeiten installieren..."
-pnpm install
+npm install
 
 # Projekt bauen
-echo "[3/6] Projekt bauen mit pnpm..."
-pnpm build
+echo "[3/6] Projekt bauen mit npm..."
+npm run build
 
 # Zielverzeichnis erstellen
 echo "[4/6] Zielverzeichnis vorbereiten..."
