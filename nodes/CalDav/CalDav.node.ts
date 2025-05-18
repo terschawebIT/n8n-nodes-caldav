@@ -29,8 +29,8 @@ export class CalDav implements INodeType {
         defaults: {
             name: 'CalDAV',
         },
-        inputs: ['main'],
-        outputs: ['main'],
+        inputs: [{ type: NodeConnectionType.Main }],
+        outputs: [{ type: NodeConnectionType.Main }],
         credentials: [
             {
                 name: 'calDavBasicAuth',

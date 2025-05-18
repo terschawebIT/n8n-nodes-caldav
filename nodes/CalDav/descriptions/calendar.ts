@@ -22,7 +22,7 @@ export const calendarOperations: INodeProperties[] = [
                     type: 'action',
                     summary: 'Create a new calendar on the CalDAV server',
                     description: 'Creates a new calendar with specified name and timezone',
-                    examples: ['Create a calendar named "Work Schedule" in Europe/Berlin timezone']
+                    examples: ['Create a work calendar', 'Create a personal calendar with Europe/Berlin timezone']
                 }
             },
             {

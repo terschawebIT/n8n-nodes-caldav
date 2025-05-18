@@ -22,7 +22,7 @@ export const eventOperations: INodeProperties[] = [
                     type: 'action',
                     summary: 'Create a new calendar event',
                     description: 'Creates a new event with title, start time, end time, and optional description',
-                    examples: ['Create a meeting titled "Team Sync" from 2pm to 3pm tomorrow']
+                    examples: ['Create a meeting from 2024-05-01T10:00:00Z to 2024-05-01T11:00:00Z', 'Create a birthday event with description']
                 }
             },
             {
