@@ -86,7 +86,28 @@ export async function createEvent(
         iCalString: generateICalString(event),
     });
 
-    return response;
+    const result = {
+        success: true,
+        message: 'Termin erfolgreich erstellt',
+        uid: event.uid,
+        details: {
+            title: event.title,
+            start: event.start,
+            end: event.end,
+            attendeesCount: event.attendees?.length || 0,
+        }
+    };
+
+    if (response && typeof response === 'object') {
+        if ('url' in response) {
+            (result as any).url = response.url;
+        }
+        if ('etag' in response) {
+            (result as any).etag = response.etag;
+        }
+    }
+
+    return result;
 }
 
 export async function updateEvent(
@@ -213,17 +234,50 @@ export async function searchEvents(
 }
 
 function generateICalString(event: any) {
-    return `BEGIN:VCALENDAR
+    const timestamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    let iCalString = `BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//n8n//Nextcloud Calendar Node//EN
 BEGIN:VEVENT
 UID:${event.uid}
-DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z
+DTSTAMP:${timestamp}
 DTSTART:${new Date(event.start).toISOString().replace(/[-:]/g, '').split('.')[0]}Z
 DTEND:${new Date(event.end).toISOString().replace(/[-:]/g, '').split('.')[0]}Z
 SUMMARY:${event.title}
-${event.description ? `DESCRIPTION:${event.description}` : ''}
-${event.location ? `LOCATION:${event.location}` : ''}
-END:VEVENT
+SEQUENCE:0
+STATUS:CONFIRMED
+`;
+
+    if (event.description) {
+        iCalString += `DESCRIPTION:${event.description.replace(/\n/g, '\\n')}\n`;
+    }
+
+    if (event.location) {
+        iCalString += `LOCATION:${event.location}\n`;
+    }
+
+    iCalString += `CLASS:PUBLIC\n`;
+    iCalString += `X-NC-GROUP-ID:${event.uid}\n`;
+
+    if (event.attendees && event.attendees.length > 0) {
+        event.attendees.forEach((attendee: any) => {
+            let attendeeString = 'ATTENDEE;CUTYPE=INDIVIDUAL';
+            if (attendee.displayName) {
+                attendeeString += `;CN=${attendee.displayName}`;
+            }
+            attendeeString += `;ROLE=${attendee.role || 'REQ-PARTICIPANT'}`;
+            if (attendee.rsvp) {
+                attendeeString += ';RSVP=TRUE';
+            } else {
+                attendeeString += ';RSVP=FALSE';
+            }
+            attendeeString += `;PARTSTAT=NEEDS-ACTION:mailto:${attendee.email}\n`;
+            iCalString += attendeeString;
+        });
+    }
+
+    iCalString += `END:VEVENT
 END:VCALENDAR`;
+
+    return iCalString;
 }

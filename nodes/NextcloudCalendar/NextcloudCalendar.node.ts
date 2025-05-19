@@ -84,7 +84,7 @@ export class NextcloudCalendar implements INodeType {
 
     async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
         const items = this.getInputData();
-        const returnData: INodeExecutionData[] = [];
+        const returnData: IDataObject[] = [];
         const resource = this.getNodeParameter('resource', 0) as string;
         const operation = this.getNodeParameter('operation', 0) as string;
 
@@ -100,14 +100,32 @@ export class NextcloudCalendar implements INodeType {
                             ...additionalFields,
                         };
                         const response = await calendarActions.createCalendar(this, calendarData);
-                        returnData.push({ json: response });
+                        returnData.push({
+                            success: true,
+                            operation: 'create',
+                            resource: 'calendar',
+                            message: 'Kalender erfolgreich erstellt',
+                            data: response
+                        });
                     } else if (operation === 'delete') {
                         const calendarName = this.getNodeParameter('calendarName', i) as string;
                         const response = await calendarActions.deleteCalendar(this, calendarName);
-                        returnData.push({ json: response });
+                        returnData.push({
+                            success: true,
+                            operation: 'delete',
+                            resource: 'calendar',
+                            message: 'Kalender erfolgreich gelöscht',
+                            data: response
+                        });
                     } else if (operation === 'getAll') {
                         const response = await calendarActions.getCalendars(this);
-                        returnData.push({ json: { calendars: response } });
+                        returnData.push({
+                            success: true,
+                            operation: 'getAll',
+                            resource: 'calendar',
+                            message: 'Kalender erfolgreich abgerufen',
+                            data: { calendars: response }
+                        });
                     }
                 } else if (resource === 'event') {
                     if (operation === 'create') {
@@ -158,13 +176,28 @@ export class NextcloudCalendar implements INodeType {
                             }
                         }
 
+                        // Nextcloud-Einstellungen verarbeiten
+                        const nextcloudSettings = this.getNodeParameter('nextcloudSettings', i, {}) as IDataObject;
+                        if (nextcloudSettings.sendInvitations === true) {
+                            // Setze spezielle Nextcloud-Parameter für das Senden von Einladungen
+                            (eventData as any).sendInvitations = true;
+                        }
+
                         const response = await eventActions.createEvent(this, eventData);
                         if (!response) {
                             throw new NodeOperationError(this.getNode(), 'Termin konnte nicht erstellt werden - keine Antwort vom Server', {
                                 itemIndex: i,
                             });
                         }
-                        returnData.push({ json: parseNextcloudResponse(response) });
+
+                        // Verbesserte Antwort mit Status und Details
+                        returnData.push({
+                            success: true,
+                            operation: 'create',
+                            resource: 'event',
+                            message: 'Termin erfolgreich erstellt',
+                            data: response
+                        });
                     } else if (operation === 'delete') {
                         const calendarName = this.getNodeParameter('calendarName', i) as string;
                         const eventId = this.getNodeParameter('eventId', i) as string;
@@ -174,7 +207,13 @@ export class NextcloudCalendar implements INodeType {
                                 itemIndex: i,
                             });
                         }
-                        returnData.push({ json: response });
+                        returnData.push({
+                            success: true,
+                            operation: 'delete',
+                            resource: 'event',
+                            message: 'Termin erfolgreich gelöscht',
+                            data: response
+                        });
                     } else if (operation === 'get') {
                         const calendarName = this.getNodeParameter('calendarName', i) as string;
                         const eventId = this.getNodeParameter('eventId', i) as string;
@@ -184,7 +223,13 @@ export class NextcloudCalendar implements INodeType {
                                 itemIndex: i,
                             });
                         }
-                        returnData.push({ json: parseNextcloudResponse(response) });
+                        returnData.push({
+                            success: true,
+                            operation: 'get',
+                            resource: 'event',
+                            message: 'Termin erfolgreich abgerufen',
+                            data: parseNextcloudResponse(response)
+                        });
                     } else if (operation === 'getAll') {
                         const calendarName = this.getNodeParameter('calendarName', i) as string;
                         const start = this.getNodeParameter('start', i) as string;
@@ -196,7 +241,13 @@ export class NextcloudCalendar implements INodeType {
                             });
                         }
                         const parsedEvents = response.map(event => parseNextcloudResponse(event));
-                        returnData.push({ json: { events: parsedEvents } });
+                        returnData.push({
+                            success: true,
+                            operation: 'getAll',
+                            resource: 'event',
+                            message: 'Termine erfolgreich abgerufen',
+                            data: { events: parsedEvents }
+                        });
                     } else if (operation === 'update') {
                         const updateFields = this.getNodeParameter('updateFields', i) as IDataObject;
                         const calendarName = this.getNodeParameter('calendarName', i) as string;
@@ -227,7 +278,13 @@ export class NextcloudCalendar implements INodeType {
                                 itemIndex: i,
                             });
                         }
-                        returnData.push({ json: parseNextcloudResponse(response) });
+                        returnData.push({
+                            success: true,
+                            operation: 'update',
+                            resource: 'event',
+                            message: 'Termin erfolgreich aktualisiert',
+                            data: parseNextcloudResponse(response)
+                        });
                     } else if (operation === 'nextEvents') {
                         const calendarName = this.getNodeParameter('calendarName', i) as string;
                         // Zeitraumparameter aus UI hinzufügen
@@ -257,7 +314,11 @@ export class NextcloudCalendar implements INodeType {
                         if (!Array.isArray(response) || response.length === 0) {
                             // Auch bei leerer Liste ein Ergebnis zurückgeben
                             returnData.push({ 
-                                json: { 
+                                success: true,
+                                operation: 'nextEvents',
+                                resource: 'event',
+                                message: 'Keine Termine im angegebenen Zeitraum gefunden',
+                                data: { 
                                     events: [],
                                     message: 'Keine Termine im angegebenen Zeitraum gefunden'
                                 } 
@@ -273,7 +334,11 @@ export class NextcloudCalendar implements INodeType {
                                 });
                             
                             returnData.push({ 
-                                json: { 
+                                success: true,
+                                operation: 'nextEvents',
+                                resource: 'event',
+                                message: 'Termine erfolgreich abgerufen',
+                                data: { 
                                     events: parsedEvents,
                                     count: parsedEvents.length,
                                     totalCount: response.length
@@ -284,14 +349,24 @@ export class NextcloudCalendar implements INodeType {
                 }
             } catch (error) {
                 if (this.continueOnFail()) {
-                    returnData.push({ json: { error: error.message } });
+                    returnData.push({
+                        success: false,
+                        message: error.message,
+                        error: {
+                            name: error.name,
+                            description: error.description || '',
+                            resource,
+                            operation,
+                            itemIndex: i,
+                        }
+                    });
                     continue;
                 }
                 throw error;
             }
         }
 
-        return [returnData];
+        return [this.helpers.returnJsonArray(returnData)];
     }
 }
 
