@@ -152,35 +152,32 @@ export class NextcloudCalendar implements INodeType {
                             location: this.getNodeParameter('location', i, '') as string,
                         };
 
-                        // Teilnehmer verarbeiten, wenn Einladungen aktiviert sind
+                        // Teilnehmer immer verarbeiten, wenn vorhanden
+                        const attendees = this.getNodeParameter('attendees', i, {}) as IDataObject;
+                        if (attendees && attendees.attendeeFields) {
+                            const attendeeFields = (attendees.attendeeFields as IDataObject[]);
+                            if (Array.isArray(attendeeFields) && attendeeFields.length > 0) {
+                                eventData.attendees = attendeeFields.map(attendee => {
+                                    // E-Mail-Validierung
+                                    if (!attendee.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(attendee.email as string)) {
+                                        throw new NodeOperationError(this.getNode(), `Ungültige E-Mail-Adresse: ${attendee.email}`, {
+                                            itemIndex: i,
+                                        });
+                                    }
+                                    return {
+                                        email: attendee.email as string,
+                                        displayName: attendee.displayName as string,
+                                        role: attendee.role as 'REQ-PARTICIPANT' | 'OPT-PARTICIPANT' | 'CHAIR',
+                                        rsvp: attendee.rsvp as boolean,
+                                    };
+                                });
+                            }
+                        }
+
+                        // Einladungen aktivieren, wenn das Flag gesetzt ist
                         const sendInvitations = this.getNodeParameter('sendInvitations', i, false) as boolean;
                         if (sendInvitations) {
-                            // Flag für Einladungen setzen
                             (eventData as any).sendInvitations = true;
-                            
-                            // Teilnehmer aus dem Feld verarbeiten
-                            const attendees = this.getNodeParameter('attendees', i, {}) as IDataObject;
-                            if (attendees && attendees.attendeeFields) {
-                                const attendeeFields = (attendees.attendeeFields as IDataObject[]);
-                                if (Array.isArray(attendeeFields) && attendeeFields.length > 0) {
-                                    eventData.attendees = attendeeFields.map(attendee => {
-                                        // E-Mail-Validierung
-                                        if (!attendee.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(attendee.email as string)) {
-                                            throw new NodeOperationError(this.getNode(), `Ungültige E-Mail-Adresse: ${attendee.email}`, {
-                                                itemIndex: i,
-                                            });
-                                        }
-                                        return {
-                                            email: attendee.email as string,
-                                            displayName: attendee.displayName as string,
-                                            role: attendee.role as 'REQ-PARTICIPANT' | 'OPT-PARTICIPANT' | 'CHAIR',
-                                            rsvp: attendee.rsvp as boolean,
-                                        };
-                                    });
-                                } else {
-                                    console.log('Keine Teilnehmer gefunden, obwohl sendInvitations aktiviert ist');
-                                }
-                            }
                         }
 
                         const response = await eventActions.createEvent(this, eventData);
@@ -272,35 +269,33 @@ export class NextcloudCalendar implements INodeType {
                             location: updateFields.location as string | undefined,
                         };
 
-                        // Teilnehmer verarbeiten, wenn Einladungen aktiviert sind
+                        // Teilnehmer immer verarbeiten, wenn vorhanden
+                        const attendees = this.getNodeParameter('attendees', i, {}) as IDataObject;
+                        if (attendees && attendees.attendeeFields) {
+                            const attendeeFields = (attendees.attendeeFields as IDataObject[]);
+                            if (Array.isArray(attendeeFields) && attendeeFields.length > 0) {
+                                updateData.attendees = attendeeFields.map(attendee => {
+                                    // E-Mail-Validierung
+                                    if (!attendee.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(attendee.email as string)) {
+                                        throw new NodeOperationError(this.getNode(), `Ungültige E-Mail-Adresse: ${attendee.email}`, {
+                                            itemIndex: i,
+                                        });
+                                    }
+                                    return {
+                                        email: attendee.email as string,
+                                        displayName: attendee.displayName as string,
+                                        role: attendee.role as 'REQ-PARTICIPANT' | 'OPT-PARTICIPANT' | 'CHAIR',
+                                        rsvp: attendee.rsvp as boolean,
+                                    };
+                                });
+                            }
+                        }
+                        
+                        // Einladungen aktivieren, wenn das Flag gesetzt ist
                         const sendInvitations = this.getNodeParameter('sendInvitations', i, false) as boolean;
                         if (sendInvitations) {
                             // Flag für Einladungen setzen
                             (updateData as any).sendInvitations = true;
-                            
-                            // Teilnehmer aus dem Feld verarbeiten
-                            const attendees = this.getNodeParameter('attendees', i, {}) as IDataObject;
-                            if (attendees && attendees.attendeeFields) {
-                                const attendeeFields = (attendees.attendeeFields as IDataObject[]);
-                                if (Array.isArray(attendeeFields) && attendeeFields.length > 0) {
-                                    updateData.attendees = attendeeFields.map(attendee => {
-                                        // E-Mail-Validierung
-                                        if (!attendee.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(attendee.email as string)) {
-                                            throw new NodeOperationError(this.getNode(), `Ungültige E-Mail-Adresse: ${attendee.email}`, {
-                                                itemIndex: i,
-                                            });
-                                        }
-                                        return {
-                                            email: attendee.email as string,
-                                            displayName: attendee.displayName as string,
-                                            role: attendee.role as 'REQ-PARTICIPANT' | 'OPT-PARTICIPANT' | 'CHAIR',
-                                            rsvp: attendee.rsvp as boolean,
-                                        };
-                                    });
-                                } else {
-                                    console.log('Keine Teilnehmer gefunden, obwohl sendInvitations aktiviert ist');
-                                }
-                            }
                         }
                         
                         const response = await eventActions.updateEvent(this, updateData);
@@ -383,7 +378,7 @@ export class NextcloudCalendar implements INodeType {
                         const end = this.getNodeParameter('end', i) as string;
                         const searchOptions = this.getNodeParameter('searchOptions', i, {}) as IDataObject;
                         
-                        console.log(`Suche nach Terminen mit Suchbegriff "${searchTerm}" im Zeitraum ${start} bis ${end}`);
+                        console.log(`Suche nach Terminen in Kalender "${calendarName}" mit Suchbegriff "${searchTerm}" im Zeitraum ${start} bis ${end}`);
                         
                         // Zunächst alle Termine im Zeitraum abrufen
                         const events = await eventActions.getEvents(this, calendarName, start, end);

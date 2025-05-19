@@ -88,6 +88,34 @@ export const eventFields: INodeProperties[] = [
         description: 'Wählen Sie aus der Liste oder geben Sie eine ID mit einer <a href="https://docs.n8n.io/code/expressions/">Expression</a> an. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
     },
     
+    // Spezifisches Kalenderfeld für die Suche, damit es vor den Suchfeldern angezeigt wird
+    {
+        displayName: 'Kalender Name Oder Name or ID',
+        name: 'calendarName',
+        type: 'string',
+        typeOptions: {
+            loadOptionsMethod: 'getCalendars',
+            loadOptionsDependsOn: [],
+            loadOptionsGlobally: true,
+            modifyOptionProperties: {
+                ['value']: {
+                    type: 'string',
+                    canBeExpression: true,
+                    AIParametrizable: true
+                }
+            }
+        },
+        displayOptions: {
+            show: {
+                resource: ['event'],
+                operation: ['search'],
+            },
+        },
+        default: '',
+        required: true,
+        description: 'Wählen Sie den Kalender aus, in dem gesucht werden soll',
+    },
+    
     // Event-ID für Operationen, die eine Event-ID benötigen
     {
         displayName: 'Termin ID',
@@ -111,6 +139,10 @@ export const eventFields: INodeProperties[] = [
         type: 'string',
         required: true,
         default: '',
+        typeOptions: {
+            canBeExpression: true,
+            AIParametrizable: true
+        },
         displayOptions: {
             show: {
                 resource: ['event'],
@@ -152,6 +184,10 @@ export const eventFields: INodeProperties[] = [
         name: 'description',
         type: 'string',
         default: '',
+        typeOptions: {
+            canBeExpression: true,
+            AIParametrizable: true
+        },
         displayOptions: {
             show: {
                 resource: ['event'],
@@ -165,6 +201,10 @@ export const eventFields: INodeProperties[] = [
         name: 'location',
         type: 'string',
         default: '',
+        typeOptions: {
+            canBeExpression: true,
+            AIParametrizable: true
+        },
         displayOptions: {
             show: {
                 resource: ['event'],
@@ -197,7 +237,6 @@ export const eventFields: INodeProperties[] = [
             show: {
                 resource: ['event'],
                 operation: ['create'],
-                sendInvitations: [true],
             },
         },
         default: {},
@@ -302,6 +341,10 @@ export const eventFields: INodeProperties[] = [
                 name: 'description',
                 type: 'string',
                 default: '',
+                typeOptions: {
+                    canBeExpression: true,
+                    AIParametrizable: true
+                },
                 description: 'Neue Beschreibung des Termins',
             },
             {
@@ -316,6 +359,10 @@ export const eventFields: INodeProperties[] = [
                 name: 'location',
                 type: 'string',
                 default: '',
+                typeOptions: {
+                    canBeExpression: true,
+                    AIParametrizable: true
+                },
                 description: 'Neuer Ort des Termins',
             },
             {
@@ -330,6 +377,10 @@ export const eventFields: INodeProperties[] = [
                 name: 'title',
                 type: 'string',
                 default: '',
+                typeOptions: {
+                    canBeExpression: true,
+                    AIParametrizable: true
+                },
                 description: 'Neuer Titel des Termins',
             },
         ],
@@ -360,7 +411,6 @@ export const eventFields: INodeProperties[] = [
             show: {
                 resource: ['event'],
                 operation: ['update'],
-                sendInvitations: [true],
             },
         },
         default: {},
