@@ -65,18 +65,11 @@ export const eventFields: INodeProperties[] = [
     {
         displayName: 'Kalender Name Oder Name or ID',
         name: 'calendarName',
-        type: 'string',
+        type: 'options',
         typeOptions: {
             loadOptionsMethod: 'getCalendars',
             loadOptionsDependsOn: [],
             loadOptionsGlobally: true,
-            modifyOptionProperties: {
-                ['value']: {
-                    type: 'string',
-                    canBeExpression: true,
-                    AIParametrizable: true
-                }
-            }
         },
         displayOptions: {
             show: {
@@ -86,34 +79,6 @@ export const eventFields: INodeProperties[] = [
         default: '',
         required: true,
         description: 'Wählen Sie aus der Liste oder geben Sie eine ID mit einer <a href="https://docs.n8n.io/code/expressions/">Expression</a> an. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
-    },
-    
-    // Spezifisches Kalenderfeld für die Suche, damit es vor den Suchfeldern angezeigt wird
-    {
-        displayName: 'Kalender Name Oder Name or ID',
-        name: 'calendarName',
-        type: 'string',
-        typeOptions: {
-            loadOptionsMethod: 'getCalendars',
-            loadOptionsDependsOn: [],
-            loadOptionsGlobally: true,
-            modifyOptionProperties: {
-                ['value']: {
-                    type: 'string',
-                    canBeExpression: true,
-                    AIParametrizable: true
-                }
-            }
-        },
-        displayOptions: {
-            show: {
-                resource: ['event'],
-                operation: ['search'],
-            },
-        },
-        default: '',
-        required: true,
-        description: 'Wählen Sie den Kalender aus, in dem gesucht werden soll',
     },
     
     // Event-ID für Operationen, die eine Event-ID benötigen

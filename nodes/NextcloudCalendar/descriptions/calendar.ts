@@ -44,6 +44,8 @@ export const calendarFields: INodeProperties[] = [
         type: 'options',
         typeOptions: {
             loadOptionsMethod: 'getCalendars',
+            loadOptionsDependsOn: [],
+            loadOptionsGlobally: true,
         },
         displayOptions: {
             show: {

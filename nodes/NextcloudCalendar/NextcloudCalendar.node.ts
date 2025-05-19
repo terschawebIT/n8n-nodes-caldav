@@ -73,11 +73,19 @@ export class NextcloudCalendar implements INodeType {
             async getCalendars(
                 this: ILoadOptionsFunctions,
             ): Promise<INodePropertyOptions[]> {
-                const calendars = await calendarActions.getCalendars(this);
-                return calendars.map((calendar) => ({
-                    name: calendar.displayName as string,
-                    value: calendar.displayName as string,
-                }));
+                try {
+                    const calendars = await calendarActions.getCalendars(this);
+                    if (!calendars || calendars.length === 0) {
+                        return [{ name: 'Keine Kalender Gefunden', value: '' }];
+                    }
+                    return calendars.map((calendar) => ({
+                        name: calendar.displayName as string,
+                        value: calendar.displayName as string,
+                    }));
+                } catch (error) {
+                    console.error('Fehler beim Laden der Kalender:', error);
+                    return [{ name: 'Fehler Beim Laden Der Kalender', value: '' }];
+                }
             },
         },
     };
