@@ -70,6 +70,13 @@ export const eventFields: INodeProperties[] = [
             loadOptionsMethod: 'getCalendars',
             loadOptionsDependsOn: [],
             loadOptionsGlobally: true,
+            modifyOptionProperties: {
+                ['value']: {
+                    type: 'string',
+                    canBeExpression: true,
+                    AIParametrizable: true
+                }
+            }
         },
         displayOptions: {
             show: {
