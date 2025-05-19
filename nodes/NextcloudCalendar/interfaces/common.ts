@@ -7,3 +7,10 @@ export interface ICredentials {
     username: string;
     password: string;
 }
+
+export interface ICodex {
+    type: string;
+    summary: string;
+    description: string;
+    examples: string[];
+}

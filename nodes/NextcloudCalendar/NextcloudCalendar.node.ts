@@ -21,6 +21,15 @@ import { parseNextcloudResponse } from './helpers/nextcloud';
 import { ICalendarCreate } from './interfaces/calendar';
 import { IEventCreate, IEventUpdate } from './interfaces/event';
 
+// Beschreibungen importieren
+import {
+    resources,
+    calendarOperations,
+    calendarFields,
+    eventOperations,
+    eventFields,
+} from './descriptions';
+
 export class NextcloudCalendar implements INodeType {
     description: INodeTypeDescription = {
         displayName: 'Nextcloud Calendar',
@@ -45,511 +54,17 @@ export class NextcloudCalendar implements INodeType {
         usableAsTool: true,
         properties: [
             // Ressource: Kalender oder Termin
-            {
-                displayName: 'Ressource',
-                name: 'resource',
-                type: 'options',
-                noDataExpression: true,
-                options: [
-                    {
-                        name: 'Kalender',
-                        value: 'calendar',
-                        description: 'Kalender erstellen und verwalten'
-                    },
-                    {
-                        name: 'Termin',
-                        value: 'event',
-                        description: 'Termine planen und organisieren'
-                    }
-                ],
-                default: 'calendar',
-                required: true,
-            },
+            resources[0],
             
             // Kalender-Operationen
-            {
-                displayName: 'Operation',
-                name: 'operation',
-                type: 'options',
-                noDataExpression: true,
-                displayOptions: {
-                    show: {
-                        resource: ['calendar'],
-                    },
-                },
-                options: [
-                    {
-                        name: 'Get Many',
-                        value: 'getAll',
-                        description: 'Alle verfügbaren Kalender anzeigen',
-                        action: 'Show all available calendars',
-                    },
-                    {
-                        name: 'Erstellen',
-                        value: 'create',
-                        description: 'Einen neuen Kalender erstellen',
-                        action: 'Create a new calendar',
-                    },
-                    {
-                        name: 'Löschen',
-                        value: 'delete',
-                        description: 'Einen Kalender löschen',
-                        action: 'Delete a calendar',
-                    },
-                ],
-                default: 'getAll',
-            },
+            calendarOperations[0],
             
             // Event-Operationen
-            {
-                displayName: 'Operation',
-                name: 'operation',
-                type: 'options',
-                noDataExpression: true,
-                displayOptions: {
-                    show: {
-                        resource: ['event'],
-                    },
-                },
-                options: [
-                    {
-                        name: 'Get Many',
-                        value: 'getAll',
-                        description: 'Sucht nach Terminen in einem Zeitraum',
-                        action: 'Find events in a time range',
-                    },
-                    {
-                        name: 'Nächste Termine Anzeigen',
-                        value: 'nextEvents',
-                        description: 'Zeigt anstehende Termine',
-                        action: 'Show upcoming events',
-                    },
-                    {
-                        name: 'Termin Ändern',
-                        value: 'update',
-                        description: 'Ändert einen bestehenden Termin',
-                        action: 'Update an existing event',
-                    },
-                    {
-                        name: 'Termin Anzeigen',
-                        value: 'get',
-                        description: 'Einen Termin anzeigen',
-                        action: 'Display an event',
-                    },
-                    {
-                        name: 'Termin Erstellen',
-                        value: 'create',
-                        description: 'Erstellt einen neuen Termin',
-                        action: 'Create a new event',
-                    },
-                    {
-                        name: 'Termin Löschen',
-                        value: 'delete',
-                        description: 'Löscht einen Termin',
-                        action: 'Delete an event',
-                    },
-                ],
-                default: 'nextEvents',
-            },
+            eventOperations[0],
             
-            // Kalender-Name für alle Event-Operationen und Kalender löschen
-            {
-                displayName: 'Kalender Name Oder Name or ID',
-                name: 'calendarName',
-                type: 'options',
-                typeOptions: {
-                    loadOptionsMethod: 'getCalendars',
-                },
-                displayOptions: {
-                    show: {
-                        resource: ['event'],
-                    },
-                },
-                default: '',
-                required: true,
-                description: 'Wählen Sie aus der Liste oder geben Sie eine ID mit einer <a href="https://docs.n8n.io/code/expressions/">Expression</a> an. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
-            },
-            {
-                displayName: 'Kalender Name Oder Name or ID',
-                name: 'calendarName',
-                type: 'options',
-                typeOptions: {
-                    loadOptionsMethod: 'getCalendars',
-                },
-                displayOptions: {
-                    show: {
-                        resource: ['calendar'],
-                        operation: ['delete'],
-                    },
-                },
-                default: '',
-                required: true,
-                description: 'Wählen Sie aus der Liste oder geben Sie eine ID mit einer <a href="https://docs.n8n.io/code/expressions/">Expression</a> an. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
-            },
-            
-            // Kalender-Name für Erstellung
-            {
-                displayName: 'Kalender Name',
-                name: 'name',
-                type: 'string',
-                required: true,
-                default: '',
-                displayOptions: {
-                    show: {
-                        resource: ['calendar'],
-                        operation: ['create'],
-                    },
-                },
-                description: 'Name des neuen Kalenders',
-            },
-            
-            // Kalender-Einstellungen
-            {
-                displayName: 'Kalender Einstellungen',
-                name: 'calendarSettings',
-                type: 'collection',
-                placeholder: 'Einstellungen hinzufügen',
-                default: {},
-                displayOptions: {
-                    show: {
-                        resource: ['calendar'],
-                        operation: ['create'],
-                    },
-                },
-                options: [
-                    {
-                        displayName: 'Farbe',
-                        name: 'color',
-                        type: 'color',
-                        default: '#0082C9',
-                        description: 'Farbe des Kalenders in der Benutzeroberfläche',
-                    },
-                    {
-                        displayName: 'Beschreibung',
-                        name: 'description',
-                        type: 'string',
-                        default: '',
-                        description: 'Beschreibung des Kalenders',
-                    },
-                ],
-            },
-            
-            // Event-ID für Operationen, die eine Event-ID benötigen
-            {
-                displayName: 'Termin ID',
-                name: 'eventId',
-                type: 'string',
-                required: true,
-                default: '',
-                displayOptions: {
-                    show: {
-                        resource: ['event'],
-                        operation: ['delete', 'get', 'update'],
-                    },
-                },
-                description: 'ID des Termins',
-            },
-            
-            // Event-Felder für Termin erstellen
-            {
-                displayName: 'Titel',
-                name: 'title',
-                type: 'string',
-                required: true,
-                default: '',
-                displayOptions: {
-                    show: {
-                        resource: ['event'],
-                        operation: ['create'],
-                    },
-                },
-                description: 'Titel des Termins',
-            },
-            {
-                displayName: 'Start',
-                name: 'start',
-                type: 'dateTime',
-                required: true,
-                default: '={{ $now }}',
-                displayOptions: {
-                    show: {
-                        resource: ['event'],
-                        operation: ['create'],
-                    },
-                },
-                description: 'Startzeit des Termins',
-            },
-            {
-                displayName: 'Ende',
-                name: 'end',
-                type: 'dateTime',
-                required: true,
-                default: '={{ $now.plus({ hour: 1 }).toISO() }}',
-                displayOptions: {
-                    show: {
-                        resource: ['event'],
-                        operation: ['create'],
-                    },
-                },
-                description: 'Endzeit des Termins',
-            },
-            
-            // Zeitraum für Termine suchen
-            {
-                displayName: 'Start',
-                name: 'start',
-                type: 'dateTime',
-                required: true,
-                default: '={{ $now }}',
-                displayOptions: {
-                    show: {
-                        resource: ['event'],
-                        operation: ['getAll'],
-                    },
-                },
-                description: 'Startzeit für die Terminsuche',
-            },
-            {
-                displayName: 'Ende',
-                name: 'end',
-                type: 'dateTime',
-                required: true,
-                default: '={{ $now.plus({ month: 1 }).toISO() }}',
-                displayOptions: {
-                    show: {
-                        resource: ['event'],
-                        operation: ['getAll'],
-                    },
-                },
-                description: 'Endzeit für die Terminsuche',
-            },
-            
-            // Zusätzliche Felder für Termin erstellen
-            {
-                displayName: 'Zusätzliche Felder',
-                name: 'additionalFields',
-                type: 'collection',
-                placeholder: 'Feld hinzufügen',
-                default: {},
-                displayOptions: {
-                    show: {
-                        resource: ['event'],
-                        operation: ['create'],
-                    },
-                },
-                options: [
-                    {
-                        displayName: 'Beschreibung',
-                        name: 'description',
-                        type: 'string',
-                        default: '',
-                        description: 'Beschreibung des Termins',
-                    },
-                    {
-                        displayName: 'Ort',
-                        name: 'location',
-                        type: 'string',
-                        default: '',
-                        description: 'Ort des Termins',
-                    },
-                    {
-                        displayName: 'Teilnehmer Hinzufügen',
-                        name: 'addAttendees',
-                        type: 'boolean',
-                        default: false,
-                        description: 'Whether to add attendees to the event',
-                    },
-                    {
-                        displayName: 'Teilnehmer',
-                        name: 'attendees',
-                        type: 'fixedCollection',
-                        typeOptions: {
-                            multipleValues: true,
-                        },
-                        displayOptions: {
-                            show: {
-                                addAttendees: [true],
-                            },
-                        },
-                        default: {},
-                        options: [
-                            {
-                                displayName: 'Teilnehmer',
-                                name: 'attendeeFields',
-                                values: [
-                                    {
-                                        displayName: 'E-Mail',
-                                        name: 'email',
-                                        type: 'string',
-                                        placeholder: 'name@email.com',
-                                        required: true,
-                                        default: '',
-                                    },
-                                    {
-                                        displayName: 'Anzeigename',
-                                        name: 'displayName',
-                                        type: 'string',
-                                        default: '',
-                                    },
-                                    {
-                                        displayName: 'RSVP',
-                                        name: 'rsvp',
-                                        type: 'boolean',
-                                        default: true,
-                                        description: 'Whether a response is expected from the attendee',
-                                    },
-                                    {
-                                        displayName: 'Rolle',
-                                        name: 'role',
-                                        type: 'options',
-                                        options: [
-                                            {
-                                                name: 'Erforderlicher Teilnehmer',
-                                                value: 'REQ-PARTICIPANT',
-                                            },
-                                            {
-                                                name: 'Optionaler Teilnehmer',
-                                                value: 'OPT-PARTICIPANT',
-                                            },
-                                            {
-                                                name: 'Organisator',
-                                                value: 'CHAIR',
-                                            },
-                                        ],
-                                        default: 'REQ-PARTICIPANT',
-                                    },
-                                ],
-                            },
-                        ],
-                    },
-                ],
-            },
-            
-            // Felder zum Aktualisieren eines Termins
-            {
-                displayName: 'Update Fields',
-                name: 'updateFields',
-                type: 'collection',
-                placeholder: 'Feld aktualisieren',
-                default: {},
-                displayOptions: {
-                    show: {
-                        resource: ['event'],
-                        operation: ['update'],
-                    },
-                },
-                options: [
-                    {
-                        displayName: 'Beschreibung',
-                        name: 'description',
-                        type: 'string',
-                        default: '',
-                        description: 'Neue Beschreibung des Termins',
-                    },
-                    {
-                        displayName: 'Ende',
-                        name: 'end',
-                        type: 'dateTime',
-                        default: '',
-                        description: 'Neue Endzeit des Termins',
-                    },
-                    {
-                        displayName: 'Ort',
-                        name: 'location',
-                        type: 'string',
-                        default: '',
-                        description: 'Neuer Ort des Termins',
-                    },
-                    {
-                        displayName: 'Start',
-                        name: 'start',
-                        type: 'dateTime',
-                        default: '',
-                        description: 'Neue Startzeit des Termins',
-                    },
-                    {
-                        displayName: 'Titel',
-                        name: 'title',
-                        type: 'string',
-                        default: '',
-                        description: 'Neuer Titel des Termins',
-                    },
-                ],
-            },
-            
-            // Nextcloud-spezifische Einstellungen
-            {
-                displayName: 'Nextcloud Einstellungen',
-                name: 'nextcloudSettings',
-                type: 'collection',
-                placeholder: 'Nextcloud-Einstellungen hinzufügen',
-                default: {},
-                displayOptions: {
-                    show: {
-                        resource: ['event'],
-                        operation: ['create', 'update']
-                    },
-                },
-                options: [
-                    {
-                        displayName: 'Alarm-Typ Erzwingen',
-                        name: 'forceEventAlarmType',
-                        type: 'options',
-                        options: [
-                            {
-                                name: 'E-Mail',
-                                value: 'EMAIL',
-                            },
-                            {
-                                name: 'Anzeige',
-                                value: 'DISPLAY',
-                            }
-                        ],
-                        default: 'DISPLAY',
-                        description: 'Erzwingt einen bestimmten Alarm-Typ für Termine',
-                        displayOptions: {
-                            show: {
-                                '/resource': ['event'],
-                                enableNotifications: [true],
-                            },
-                        },
-                    },
-                    {
-                        displayName: 'Benachrichtigungen Aktivieren',
-                        name: 'enableNotifications',
-                        type: 'boolean',
-                        default: true,
-                        description: 'Whether to enable notifications for events',
-                    },
-                    {
-                        displayName: 'Einladungen Senden',
-                        name: 'sendInvitations',
-                        type: 'boolean',
-                        default: true,
-                        description: 'Whether to send invitations to participants',
-                        displayOptions: {
-                            show: {
-                                '/resource': ['event'],
-                                '/operation': ['create', 'update']
-                            },
-                        },
-                    },
-                    {
-                        displayName: 'Export Ausblenden',
-                        name: 'hideEventExport',
-                        type: 'boolean',
-                        default: false,
-                        description: 'Whether to hide the export buttons in the user interface',
-                    },
-                    {
-                        displayName: 'Push-Benachrichtigungen Aktivieren',
-                        name: 'enablePushNotifications',
-                        type: 'boolean',
-                        default: true,
-                        description: 'Whether to enable push notifications for events',
-                    },
-                ],
-            },
+            // Feld-Definitionen
+            ...calendarFields,
+            ...eventFields,
         ],
     };
 
@@ -715,23 +230,56 @@ export class NextcloudCalendar implements INodeType {
                         returnData.push({ json: parseNextcloudResponse(response) });
                     } else if (operation === 'nextEvents') {
                         const calendarName = this.getNodeParameter('calendarName', i) as string;
+                        // Zeitraumparameter aus UI hinzufügen
+                        const maxEvents = this.getNodeParameter('maxEvents', i, 10) as number;
                         const now = new Date();
                         const end = new Date();
                         end.setMonth(end.getMonth() + 1); // Standardmäßig einen Monat in die Zukunft
 
+                        console.log(`Suche Termine in Kalender "${calendarName}" von ${now.toISOString()} bis ${end.toISOString()}`);
+                        
                         const response = await eventActions.getEvents(
                             this,
                             calendarName,
                             now.toISOString(),
                             end.toISOString(),
                         );
-                        if (!response || !Array.isArray(response)) {
-                            throw new NodeOperationError(this.getNode(), 'Keine Termine gefunden oder ungültige Antwort vom Server', {
+                        
+                        if (!response) {
+                            console.log('Keine Antwort vom Server erhalten');
+                            throw new NodeOperationError(this.getNode(), 'Keine Antwort vom Server', {
                                 itemIndex: i,
                             });
                         }
-                        const parsedEvents = response.map(event => parseNextcloudResponse(event));
-                        returnData.push({ json: { events: parsedEvents } });
+
+                        console.log(`Anzahl gefundener Termine: ${Array.isArray(response) ? response.length : 0}`);
+                        
+                        if (!Array.isArray(response) || response.length === 0) {
+                            // Auch bei leerer Liste ein Ergebnis zurückgeben
+                            returnData.push({ 
+                                json: { 
+                                    events: [],
+                                    message: 'Keine Termine im angegebenen Zeitraum gefunden'
+                                } 
+                            });
+                        } else {
+                            // Termine zurückgeben und auf maxEvents beschränken
+                            const parsedEvents = response
+                                .slice(0, maxEvents)
+                                .map(event => {
+                                    const parsed = parseNextcloudResponse(event);
+                                    console.log(`Verarbeite Termin: ${JSON.stringify(parsed)}`);
+                                    return parsed;
+                                });
+                            
+                            returnData.push({ 
+                                json: { 
+                                    events: parsedEvents,
+                                    count: parsedEvents.length,
+                                    totalCount: response.length
+                                } 
+                            });
+                        }
                     }
                 }
             } catch (error) {
