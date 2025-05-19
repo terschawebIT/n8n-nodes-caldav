@@ -59,9 +59,18 @@ export const eventFields: INodeProperties[] = [
     {
         displayName: 'Kalender Name Oder Name or ID',
         name: 'calendarName',
-        type: 'options',
+        type: 'string',
         typeOptions: {
             loadOptionsMethod: 'getCalendars',
+            loadOptionsDependsOn: [],
+            loadOptionsGlobally: true,
+            modifyOptionProperties: {
+                ['value']: {
+                    type: 'string',
+                    canBeExpression: true,
+                    AIParametrizable: true
+                }
+            }
         },
         displayOptions: {
             show: {

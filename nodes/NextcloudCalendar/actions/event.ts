@@ -74,10 +74,12 @@ export async function createEvent(
 ) {
     const client = await initClient(context);
     const calendar = await findCalendar(context, client, data.calendarName);
+    const credentials = await context.getCredentials('nextcloudCalendarApi');
 
     const event = {
         ...data,
         uid: `n8n-${Date.now()}@nextcloud-calendar`,
+        credentials: credentials,
     };
 
     const response = await client.createCalendarObject({
@@ -258,6 +260,11 @@ STATUS:CONFIRMED
 
     iCalString += `CLASS:PUBLIC\n`;
     iCalString += `X-NC-GROUP-ID:${event.uid}\n`;
+    
+    const credentials = event.credentials || {};
+    const username = credentials.username || 'Organizer';
+    const email = credentials.email || `${username}@example.com`;
+    iCalString += `ORGANIZER;CN=${username}:mailto:${email}\n`;
 
     if (event.attendees && event.attendees.length > 0) {
         event.attendees.forEach((attendee: any) => {
@@ -266,12 +273,13 @@ STATUS:CONFIRMED
                 attendeeString += `;CN=${attendee.displayName}`;
             }
             attendeeString += `;ROLE=${attendee.role || 'REQ-PARTICIPANT'}`;
+            attendeeString += ';PARTSTAT=NEEDS-ACTION';
             if (attendee.rsvp) {
                 attendeeString += ';RSVP=TRUE';
             } else {
                 attendeeString += ';RSVP=FALSE';
             }
-            attendeeString += `;PARTSTAT=NEEDS-ACTION:mailto:${attendee.email}\n`;
+            attendeeString += `:mailto:${attendee.email}\n`;
             iCalString += attendeeString;
         });
     }

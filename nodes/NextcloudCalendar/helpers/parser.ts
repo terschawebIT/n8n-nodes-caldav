@@ -180,7 +180,8 @@ export function parseICalEvent(calendarObject: DAVCalendarObject): IEventRespons
     const icalData = parseICS(calendarObject.data);
     const event = icalData.vevent;
 
-    return {
+    // Vollständigere Antwort zurückgeben
+    const response: IEventResponse = {
         uid: event.uid,
         title: event.summary,
         start: event.start?.toISOString(),
@@ -190,24 +191,30 @@ export function parseICalEvent(calendarObject: DAVCalendarObject): IEventRespons
         url: calendarObject.url,
         etag: calendarObject.etag,
         created: event.created,
-        lastModified: event.lastModified,
+        lastModified: event.lastmodified,
         status: event.status,
+        // Vollständige Informationen über Organisator zurückgeben
         organizer: event.organizer ? {
             email: event.organizer.val.replace('mailto:', ''),
             displayName: event.organizer.params?.CN,
         } : undefined,
+        // Vollständige Informationen über Teilnehmer zurückgeben
         attendees: event.attendee ? Array.isArray(event.attendee) ?
             event.attendee.map((a: any) => ({
                 email: a.val.replace('mailto:', ''),
                 displayName: a.params?.CN,
                 role: a.params?.ROLE,
                 status: a.params?.PARTSTAT,
+                rsvp: a.params?.RSVP === 'TRUE',
             })) :
             [{
                 email: event.attendee.val.replace('mailto:', ''),
                 displayName: event.attendee.params?.CN,
                 role: event.attendee.params?.ROLE,
                 status: event.attendee.params?.PARTSTAT,
+                rsvp: event.attendee.params?.RSVP === 'TRUE',
             }] : undefined,
     };
+    
+    return response;
 }
