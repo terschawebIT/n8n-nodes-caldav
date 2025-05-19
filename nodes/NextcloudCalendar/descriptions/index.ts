@@ -1,13 +1,17 @@
-// Export aller Beschreibungen
+// Exportiere alle Elemente aus den Modulen
+export { eventOperations, eventFields } from './event';
+export { calendarOperations, calendarFields } from './calendar'; // Diese müssten noch erstellt werden
+export { resources } from './resources'; 
 
-import { resources } from './resources';
-import { calendarOperations, calendarFields } from './calendar';
-import { eventOperations, eventFields } from './event';
-
-export {
-    resources,
-    calendarOperations,
-    calendarFields,
-    eventOperations,
-    eventFields,
-}; 
+// Oder alternativ für bessere Kontrolle:
+// import { eventOperations, eventFields } from './event';
+// import { calendarOperations, calendarFields } from './calendar';
+// import { resources } from './resources';
+// 
+// export {
+//   eventOperations,
+//   eventFields,
+//   calendarOperations,
+//   calendarFields,
+//   resources,
+// }; 
