@@ -4,4 +4,5 @@ export interface IAttendee {
     rsvp?: boolean;
     role?: 'REQ-PARTICIPANT' | 'OPT-PARTICIPANT' | 'CHAIR';
     partstat?: 'NEEDS-ACTION' | 'ACCEPTED' | 'DECLINED' | 'TENTATIVE';
+    status?: string;
 }
