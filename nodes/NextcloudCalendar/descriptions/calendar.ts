@@ -46,6 +46,13 @@ export const calendarFields: INodeProperties[] = [
             loadOptionsMethod: 'getCalendars',
             loadOptionsDependsOn: [],
             loadOptionsGlobally: true,
+            modifyOptionProperties: {
+                ['value']: {
+                    type: 'string',
+                    canBeExpression: true,
+                    AIParametrizable: true
+                }
+            }
         },
         displayOptions: {
             show: {
@@ -65,6 +72,10 @@ export const calendarFields: INodeProperties[] = [
         type: 'string',
         required: true,
         default: '',
+        typeOptions: {
+            canBeExpression: true,
+            AIParametrizable: true
+        },
         displayOptions: {
             show: {
                 resource: ['calendar'],
@@ -100,6 +111,10 @@ export const calendarFields: INodeProperties[] = [
                 name: 'description',
                 type: 'string',
                 default: '',
+                typeOptions: {
+                    canBeExpression: true,
+                    AIParametrizable: true
+                },
                 description: 'Beschreibung des Kalenders',
             },
         ],
