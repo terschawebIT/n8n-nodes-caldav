@@ -167,8 +167,8 @@ export function parseEventResults(events: CalendarObjectType[]): IEventResponse[
     }
 
     return eventResults.sort((a, b) => {
-        const startA = a?.start ? a.start : '';
-        const startB = b?.start ? b.start : '';
+        const startA = a?.start ?? '';
+        const startB = b?.start ?? '';
         
         if (startA < startB) {
             return -1;

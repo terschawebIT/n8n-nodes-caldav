@@ -1,5 +1,3 @@
-import { IAttendee } from './IAttendee';
-
 export interface ICalendarBase {
     displayName: string;
     color?: string;
@@ -22,35 +20,4 @@ export interface ICalendarResponse extends ICalendarBase {
     resourcetype?: string[];
     syncToken?: string;
     components?: string[];
-}
-
-export interface IEventCreate {
-    calendarName: string;
-    title: string;
-    start: string;
-    end: string;
-    description?: string;
-    location?: string;
-    attendees?: IAttendee[];
-    room?: string;
-    resources?: string[];
-    alarmType?: 'EMAIL' | 'DISPLAY';
-}
-
-export interface IEventResponse {
-    id: string;
-    calendarName: string;
-    title: string;
-    start: string;
-    end: string;
-    description?: string;
-    location?: string;
-    attendees?: IAttendee[];
-    room?: string;
-    resources?: string[];
-    url: string;
-    etag?: string;
-    groupId?: string;
-    isRecurring?: boolean;
-    recurrenceRule?: string;
 }

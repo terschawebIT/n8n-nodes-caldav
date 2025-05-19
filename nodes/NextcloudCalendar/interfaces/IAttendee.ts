@@ -3,6 +3,5 @@ export interface IAttendee {
     displayName?: string;
     rsvp?: boolean;
     role?: 'REQ-PARTICIPANT' | 'OPT-PARTICIPANT' | 'CHAIR';
-    partstat?: 'NEEDS-ACTION' | 'ACCEPTED' | 'DECLINED' | 'TENTATIVE';
-    status?: string;
+    status?: 'NEEDS-ACTION' | 'ACCEPTED' | 'DECLINED' | 'TENTATIVE';
 }
