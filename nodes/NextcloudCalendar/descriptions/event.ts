@@ -26,6 +26,12 @@ export const eventOperations: INodeProperties[] = [
                 action: 'Show upcoming events',
             },
             {
+                name: 'Nach Terminen Suchen',
+                value: 'search',
+                description: 'Sucht nach bestimmten Suchbegriffen in Terminen',
+                action: 'Search for specific terms in events',
+            },
+            {
                 name: 'Termin Ändern',
                 value: 'update',
                 description: 'Ändert einen bestehenden Termin',
@@ -141,6 +147,111 @@ export const eventFields: INodeProperties[] = [
         },
         description: 'Endzeit des Termins',
     },
+    {
+        displayName: 'Beschreibung',
+        name: 'description',
+        type: 'string',
+        default: '',
+        displayOptions: {
+            show: {
+                resource: ['event'],
+                operation: ['create'],
+            },
+        },
+        description: 'Beschreibung des Termins',
+    },
+    {
+        displayName: 'Ort',
+        name: 'location',
+        type: 'string',
+        default: '',
+        displayOptions: {
+            show: {
+                resource: ['event'],
+                operation: ['create'],
+            },
+        },
+        description: 'Ort des Termins',
+    },
+    {
+        displayName: 'Einladungen Aktivieren',
+        name: 'sendInvitations',
+        type: 'boolean',
+        default: false,
+        displayOptions: {
+            show: {
+                resource: ['event'],
+                operation: ['create'],
+            },
+        },
+        description: 'Ob Einladungen an Teilnehmer gesendet werden sollen (Whether to send invitations to attendees)',
+    },
+    {
+        displayName: 'Teilnehmer',
+        name: 'attendees',
+        type: 'fixedCollection',
+        typeOptions: {
+            multipleValues: true,
+        },
+        displayOptions: {
+            show: {
+                resource: ['event'],
+                operation: ['create'],
+                sendInvitations: [true],
+            },
+        },
+        default: {},
+        options: [
+            {
+                displayName: 'Teilnehmer',
+                name: 'attendeeFields',
+                values: [
+                    {
+                        displayName: 'E-Mail',
+                        name: 'email',
+                        type: 'string',
+                        placeholder: 'name@email.com',
+                        required: true,
+                        default: '',
+                    },
+                    {
+                        displayName: 'Anzeigename',
+                        name: 'displayName',
+                        type: 'string',
+                        default: '',
+                    },
+                    {
+                        displayName: 'RSVP',
+                        name: 'rsvp',
+                        type: 'boolean',
+                        default: true,
+                        description: 'Whether a response is expected from the attendee',
+                    },
+                    {
+                        displayName: 'Rolle',
+                        name: 'role',
+                        type: 'options',
+                        options: [
+                            {
+                                name: 'Erforderlicher Teilnehmer',
+                                value: 'REQ-PARTICIPANT',
+                            },
+                            {
+                                name: 'Optionaler Teilnehmer',
+                                value: 'OPT-PARTICIPANT',
+                            },
+                            {
+                                name: 'Organisator',
+                                value: 'CHAIR',
+                            },
+                        ],
+                        default: 'REQ-PARTICIPANT',
+                    },
+                ],
+            },
+        ],
+        description: 'Teilnehmer zum Termin hinzufügen',
+    },
     
     // Zeitraum für Termine suchen
     {
@@ -170,107 +281,6 @@ export const eventFields: INodeProperties[] = [
             },
         },
         description: 'Endzeit für die Terminsuche',
-    },
-    
-    // Zusätzliche Felder für Termin erstellen
-    {
-        displayName: 'Zusätzliche Felder',
-        name: 'additionalFields',
-        type: 'collection',
-        placeholder: 'Feld hinzufügen',
-        default: {},
-        displayOptions: {
-            show: {
-                resource: ['event'],
-                operation: ['create'],
-            },
-        },
-        options: [
-            {
-                displayName: 'Beschreibung',
-                name: 'description',
-                type: 'string',
-                default: '',
-                description: 'Beschreibung des Termins',
-            },
-            {
-                displayName: 'Ort',
-                name: 'location',
-                type: 'string',
-                default: '',
-                description: 'Ort des Termins',
-            },
-            {
-                displayName: 'Teilnehmer Hinzufügen',
-                name: 'addAttendees',
-                type: 'boolean',
-                default: false,
-                description: 'Whether to add attendees to the event',
-            },
-            {
-                displayName: 'Teilnehmer',
-                name: 'attendees',
-                type: 'fixedCollection',
-                typeOptions: {
-                    multipleValues: true,
-                },
-                displayOptions: {
-                    show: {
-                        addAttendees: [true],
-                    },
-                },
-                default: {},
-                options: [
-                    {
-                        displayName: 'Teilnehmer',
-                        name: 'attendeeFields',
-                        values: [
-                            {
-                                displayName: 'E-Mail',
-                                name: 'email',
-                                type: 'string',
-                                placeholder: 'name@email.com',
-                                required: true,
-                                default: '',
-                            },
-                            {
-                                displayName: 'Anzeigename',
-                                name: 'displayName',
-                                type: 'string',
-                                default: '',
-                            },
-                            {
-                                displayName: 'RSVP',
-                                name: 'rsvp',
-                                type: 'boolean',
-                                default: true,
-                                description: 'Whether a response is expected from the attendee',
-                            },
-                            {
-                                displayName: 'Rolle',
-                                name: 'role',
-                                type: 'options',
-                                options: [
-                                    {
-                                        name: 'Erforderlicher Teilnehmer',
-                                        value: 'REQ-PARTICIPANT',
-                                    },
-                                    {
-                                        name: 'Optionaler Teilnehmer',
-                                        value: 'OPT-PARTICIPANT',
-                                    },
-                                    {
-                                        name: 'Organisator',
-                                        value: 'CHAIR',
-                                    },
-                                ],
-                                default: 'REQ-PARTICIPANT',
-                            },
-                        ],
-                    },
-                ],
-            },
-        ],
     },
     
     // Felder zum Aktualisieren eines Termins
@@ -325,6 +335,87 @@ export const eventFields: INodeProperties[] = [
         ],
     },
     
+    {
+        displayName: 'Einladungen Aktivieren',
+        name: 'sendInvitations',
+        type: 'boolean',
+        default: false,
+        displayOptions: {
+            show: {
+                resource: ['event'],
+                operation: ['update'],
+            },
+        },
+        description: 'Ob Einladungen an Teilnehmer gesendet werden sollen (Whether to send invitations to attendees)',
+    },
+    
+    {
+        displayName: 'Teilnehmer',
+        name: 'attendees',
+        type: 'fixedCollection',
+        typeOptions: {
+            multipleValues: true,
+        },
+        displayOptions: {
+            show: {
+                resource: ['event'],
+                operation: ['update'],
+                sendInvitations: [true],
+            },
+        },
+        default: {},
+        options: [
+            {
+                displayName: 'Teilnehmer',
+                name: 'attendeeFields',
+                values: [
+                    {
+                        displayName: 'E-Mail',
+                        name: 'email',
+                        type: 'string',
+                        placeholder: 'name@email.com',
+                        required: true,
+                        default: '',
+                    },
+                    {
+                        displayName: 'Anzeigename',
+                        name: 'displayName',
+                        type: 'string',
+                        default: '',
+                    },
+                    {
+                        displayName: 'RSVP',
+                        name: 'rsvp',
+                        type: 'boolean',
+                        default: true,
+                        description: 'Whether a response is expected from the attendee',
+                    },
+                    {
+                        displayName: 'Rolle',
+                        name: 'role',
+                        type: 'options',
+                        options: [
+                            {
+                                name: 'Erforderlicher Teilnehmer',
+                                value: 'REQ-PARTICIPANT',
+                            },
+                            {
+                                name: 'Optionaler Teilnehmer',
+                                value: 'OPT-PARTICIPANT',
+                            },
+                            {
+                                name: 'Organisator',
+                                value: 'CHAIR',
+                            },
+                        ],
+                        default: 'REQ-PARTICIPANT',
+                    },
+                ],
+            },
+        ],
+        description: 'Teilnehmer zum Termin hinzufügen',
+    },
+    
     // Nextcloud-spezifische Einstellungen
     {
         displayName: 'Nextcloud Einstellungen',
@@ -370,19 +461,6 @@ export const eventFields: INodeProperties[] = [
                 description: 'Whether to enable notifications for events',
             },
             {
-                displayName: 'Einladungen Senden',
-                name: 'sendInvitations',
-                type: 'boolean',
-                default: true,
-                description: 'Whether to send invitations to participants',
-                displayOptions: {
-                    show: {
-                        '/resource': ['event'],
-                        '/operation': ['create', 'update']
-                    },
-                },
-            },
-            {
                 displayName: 'Export Ausblenden',
                 name: 'hideEventExport',
                 type: 'boolean',
@@ -412,5 +490,85 @@ export const eventFields: INodeProperties[] = [
             },
         },
         description: 'Maximale Anzahl der zurückgegebenen Termine',
+    },
+
+    // Felder für die Terminsuche
+    {
+        displayName: 'Suchbegriff',
+        name: 'searchTerm',
+        type: 'string',
+        required: true,
+        default: '',
+        displayOptions: {
+            show: {
+                resource: ['event'],
+                operation: ['search'],
+            },
+        },
+        description: 'Suchbegriff zum Finden von Terminen (sucht in Titel, Beschreibung und Ort)',
+    },
+    {
+        displayName: 'Start',
+        name: 'start',
+        type: 'dateTime',
+        required: true,
+        default: '={{ $now }}',
+        displayOptions: {
+            show: {
+                resource: ['event'],
+                operation: ['search'],
+            },
+        },
+        description: 'Startzeit für den Suchzeitraum',
+    },
+    {
+        displayName: 'Ende',
+        name: 'end',
+        type: 'dateTime',
+        required: true,
+        default: '={{ $now.plus({ month: 3 }).toISO() }}',
+        displayOptions: {
+            show: {
+                resource: ['event'],
+                operation: ['search'],
+            },
+        },
+        description: 'Endzeit für den Suchzeitraum',
+    },
+    {
+        displayName: 'Suchoptionen',
+        name: 'searchOptions',
+        type: 'collection',
+        placeholder: 'Optionen hinzufügen',
+        default: {},
+        displayOptions: {
+            show: {
+                resource: ['event'],
+                operation: ['search'],
+            },
+        },
+        options: [
+            {
+                displayName: 'Nur in Titeln suchen',
+                name: 'titlesOnly',
+                type: 'boolean',
+                default: false,
+                description: 'Sucht nur in den Titeln der Termine, nicht in Beschreibungen und Orten',
+            },
+            {
+                displayName: 'Exakte Übereinstimmung',
+                name: 'exactMatch',
+                type: 'boolean',
+                default: false,
+                description: 'Sucht nach exakter Übereinstimmung statt Teilübereinstimmung',
+            },
+            {
+                displayName: 'Groß-/Kleinschreibung beachten',
+                name: 'caseSensitive',
+                type: 'boolean',
+                default: false,
+                description: 'Beachtet Groß-/Kleinschreibung bei der Suche',
+            },
+        ],
     },
 ]; 

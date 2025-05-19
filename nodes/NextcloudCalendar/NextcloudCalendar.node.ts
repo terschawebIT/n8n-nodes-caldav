@@ -142,45 +142,45 @@ export class NextcloudCalendar implements INodeType {
                             });
                         }
 
-                        // Zusätzliche Felder abrufen
-                        const additionalFields = this.getNodeParameter('additionalFields', i) as IDataObject;
-                        
                         // Event-Daten zusammenstellen
                         const eventData: IEventCreate = {
                             title,
                             start,
                             end,
                             calendarName,
-                            description: additionalFields.description as string,
-                            location: additionalFields.location as string,
+                            description: this.getNodeParameter('description', i, '') as string,
+                            location: this.getNodeParameter('location', i, '') as string,
                         };
 
-                        // Teilnehmer verarbeiten, wenn vorhanden
-                        if (additionalFields.addAttendees && additionalFields.attendees) {
-                            const attendeeFields = (additionalFields.attendees as IDataObject).attendeeFields as IDataObject[];
-                            if (Array.isArray(attendeeFields)) {
-                                eventData.attendees = attendeeFields.map(attendee => {
-                                    // E-Mail-Validierung
-                                    if (!attendee.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(attendee.email as string)) {
-                                        throw new NodeOperationError(this.getNode(), `Ungültige E-Mail-Adresse: ${attendee.email}`, {
-                                            itemIndex: i,
-                                        });
-                                    }
-                                    return {
-                                        email: attendee.email as string,
-                                        displayName: attendee.displayName as string,
-                                        role: attendee.role as 'REQ-PARTICIPANT' | 'OPT-PARTICIPANT' | 'CHAIR',
-                                        rsvp: attendee.rsvp as boolean,
-                                    };
-                                });
-                            }
-                        }
-
-                        // Nextcloud-Einstellungen verarbeiten
-                        const nextcloudSettings = this.getNodeParameter('nextcloudSettings', i, {}) as IDataObject;
-                        if (nextcloudSettings.sendInvitations === true) {
-                            // Setze spezielle Nextcloud-Parameter für das Senden von Einladungen
+                        // Teilnehmer verarbeiten, wenn Einladungen aktiviert sind
+                        const sendInvitations = this.getNodeParameter('sendInvitations', i, false) as boolean;
+                        if (sendInvitations) {
+                            // Flag für Einladungen setzen
                             (eventData as any).sendInvitations = true;
+                            
+                            // Teilnehmer aus dem Feld verarbeiten
+                            const attendees = this.getNodeParameter('attendees', i, {}) as IDataObject;
+                            if (attendees && attendees.attendeeFields) {
+                                const attendeeFields = (attendees.attendeeFields as IDataObject[]);
+                                if (Array.isArray(attendeeFields) && attendeeFields.length > 0) {
+                                    eventData.attendees = attendeeFields.map(attendee => {
+                                        // E-Mail-Validierung
+                                        if (!attendee.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(attendee.email as string)) {
+                                            throw new NodeOperationError(this.getNode(), `Ungültige E-Mail-Adresse: ${attendee.email}`, {
+                                                itemIndex: i,
+                                            });
+                                        }
+                                        return {
+                                            email: attendee.email as string,
+                                            displayName: attendee.displayName as string,
+                                            role: attendee.role as 'REQ-PARTICIPANT' | 'OPT-PARTICIPANT' | 'CHAIR',
+                                            rsvp: attendee.rsvp as boolean,
+                                        };
+                                    });
+                                } else {
+                                    console.log('Keine Teilnehmer gefunden, obwohl sendInvitations aktiviert ist');
+                                }
+                            }
                         }
 
                         const response = await eventActions.createEvent(this, eventData);
@@ -271,6 +271,37 @@ export class NextcloudCalendar implements INodeType {
                             description: updateFields.description as string | undefined,
                             location: updateFields.location as string | undefined,
                         };
+
+                        // Teilnehmer verarbeiten, wenn Einladungen aktiviert sind
+                        const sendInvitations = this.getNodeParameter('sendInvitations', i, false) as boolean;
+                        if (sendInvitations) {
+                            // Flag für Einladungen setzen
+                            (updateData as any).sendInvitations = true;
+                            
+                            // Teilnehmer aus dem Feld verarbeiten
+                            const attendees = this.getNodeParameter('attendees', i, {}) as IDataObject;
+                            if (attendees && attendees.attendeeFields) {
+                                const attendeeFields = (attendees.attendeeFields as IDataObject[]);
+                                if (Array.isArray(attendeeFields) && attendeeFields.length > 0) {
+                                    updateData.attendees = attendeeFields.map(attendee => {
+                                        // E-Mail-Validierung
+                                        if (!attendee.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(attendee.email as string)) {
+                                            throw new NodeOperationError(this.getNode(), `Ungültige E-Mail-Adresse: ${attendee.email}`, {
+                                                itemIndex: i,
+                                            });
+                                        }
+                                        return {
+                                            email: attendee.email as string,
+                                            displayName: attendee.displayName as string,
+                                            role: attendee.role as 'REQ-PARTICIPANT' | 'OPT-PARTICIPANT' | 'CHAIR',
+                                            rsvp: attendee.rsvp as boolean,
+                                        };
+                                    });
+                                } else {
+                                    console.log('Keine Teilnehmer gefunden, obwohl sendInvitations aktiviert ist');
+                                }
+                            }
+                        }
                         
                         const response = await eventActions.updateEvent(this, updateData);
                         if (!response) {
@@ -343,6 +374,122 @@ export class NextcloudCalendar implements INodeType {
                                     count: parsedEvents.length,
                                     totalCount: response.length
                                 } 
+                            });
+                        }
+                    } else if (operation === 'search') {
+                        const calendarName = this.getNodeParameter('calendarName', i) as string;
+                        const searchTerm = this.getNodeParameter('searchTerm', i) as string;
+                        const start = this.getNodeParameter('start', i) as string;
+                        const end = this.getNodeParameter('end', i) as string;
+                        const searchOptions = this.getNodeParameter('searchOptions', i, {}) as IDataObject;
+                        
+                        console.log(`Suche nach Terminen mit Suchbegriff "${searchTerm}" im Zeitraum ${start} bis ${end}`);
+                        
+                        // Zunächst alle Termine im Zeitraum abrufen
+                        const events = await eventActions.getEvents(this, calendarName, start, end);
+                        
+                        if (!events || !Array.isArray(events)) {
+                            throw new NodeOperationError(this.getNode(), 'Keine Termine gefunden oder ungültige Antwort vom Server', {
+                                itemIndex: i,
+                            });
+                        }
+                        
+                        console.log(`${events.length} Termine im angegebenen Zeitraum gefunden, filtere nach Suchbegriff`);
+                        
+                        // Filtere die Ergebnisse basierend auf den Suchoptionen
+                        let filteredEvents = events.filter(event => {
+                            // Bereite den Suchbegriff und die zu durchsuchenden Felder vor
+                            const caseSensitive = !!searchOptions.caseSensitive;
+                            const exactMatch = !!searchOptions.exactMatch;
+                            const titlesOnly = !!searchOptions.titlesOnly;
+                            
+                            let termToSearch = searchTerm;
+                            if (!caseSensitive) {
+                                termToSearch = termToSearch.toLowerCase();
+                            }
+                            
+                            // Prüfe den Titel
+                            let titleMatch = false;
+                            if (event.title) {
+                                let title = event.title;
+                                if (!caseSensitive) {
+                                    title = title.toLowerCase();
+                                }
+                                
+                                if (exactMatch) {
+                                    titleMatch = title === termToSearch;
+                                } else {
+                                    titleMatch = title.includes(termToSearch);
+                                }
+                            }
+                            
+                            // Wenn nur in Titeln gesucht werden soll oder bereits ein Treffer gefunden wurde
+                            if (titlesOnly || titleMatch) {
+                                return titleMatch;
+                            }
+                            
+                            // Prüfe Beschreibung und Ort
+                            let descriptionMatch = false;
+                            let locationMatch = false;
+                            
+                            if (event.description) {
+                                let description = event.description;
+                                if (!caseSensitive) {
+                                    description = description.toLowerCase();
+                                }
+                                
+                                if (exactMatch) {
+                                    descriptionMatch = description === termToSearch;
+                                } else {
+                                    descriptionMatch = description.includes(termToSearch);
+                                }
+                            }
+                            
+                            if (event.location) {
+                                let location = event.location;
+                                if (!caseSensitive) {
+                                    location = location.toLowerCase();
+                                }
+                                
+                                if (exactMatch) {
+                                    locationMatch = location === termToSearch;
+                                } else {
+                                    locationMatch = location.includes(termToSearch);
+                                }
+                            }
+                            
+                            return titleMatch || descriptionMatch || locationMatch;
+                        });
+                        
+                        console.log(`${filteredEvents.length} Termine gefunden, die dem Suchbegriff entsprechen`);
+                        
+                        if (filteredEvents.length === 0) {
+                            returnData.push({
+                                success: true,
+                                operation: 'search',
+                                resource: 'event',
+                                message: 'Keine Termine mit dem Suchbegriff gefunden',
+                                data: {
+                                    events: [],
+                                    searchTerm,
+                                    count: 0,
+                                    totalCount: events.length
+                                }
+                            });
+                        } else {
+                            const parsedEvents = filteredEvents.map(event => parseNextcloudResponse(event));
+                            
+                            returnData.push({
+                                success: true,
+                                operation: 'search',
+                                resource: 'event',
+                                message: `${filteredEvents.length} Termine gefunden`,
+                                data: {
+                                    events: parsedEvents,
+                                    searchTerm,
+                                    count: parsedEvents.length,
+                                    totalCount: events.length
+                                }
                             });
                         }
                     }
