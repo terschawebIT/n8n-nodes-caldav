@@ -20,16 +20,16 @@ export const eventOperations: INodeProperties[] = [
                 action: 'Find events in a time range',
             },
             {
-                name: 'Nächste Termine Anzeigen',
-                value: 'nextEvents',
-                description: 'Zeigt anstehende Termine',
-                action: 'Show upcoming events',
-            },
-            {
                 name: 'Nach Terminen Suchen',
                 value: 'search',
                 description: 'Sucht nach bestimmten Suchbegriffen in Terminen',
                 action: 'Search for specific terms in events',
+            },
+            {
+                name: 'Nächste Termine Anzeigen',
+                value: 'nextEvents',
+                description: 'Zeigt anstehende Termine',
+                action: 'Show upcoming events',
             },
             {
                 name: 'Termin Ändern',
@@ -184,7 +184,7 @@ export const eventFields: INodeProperties[] = [
                 operation: ['create'],
             },
         },
-        description: 'Ob Einladungen an Teilnehmer gesendet werden sollen (Whether to send invitations to attendees)',
+        description: 'Whether to send invitations to attendees',
     },
     {
         displayName: 'Teilnehmer',
@@ -346,7 +346,7 @@ export const eventFields: INodeProperties[] = [
                 operation: ['update'],
             },
         },
-        description: 'Ob Einladungen an Teilnehmer gesendet werden sollen (Whether to send invitations to attendees)',
+        description: 'Whether to send invitations to attendees',
     },
     
     {
@@ -549,25 +549,25 @@ export const eventFields: INodeProperties[] = [
         },
         options: [
             {
-                displayName: 'Nur in Titeln suchen',
+                displayName: 'Nur in Titeln Suchen',
                 name: 'titlesOnly',
                 type: 'boolean',
                 default: false,
-                description: 'Sucht nur in den Titeln der Termine, nicht in Beschreibungen und Orten',
+                description: 'Whether to search only in event titles instead of all fields',
             },
             {
                 displayName: 'Exakte Übereinstimmung',
                 name: 'exactMatch',
                 type: 'boolean',
                 default: false,
-                description: 'Sucht nach exakter Übereinstimmung statt Teilübereinstimmung',
+                description: 'Whether to search for exact matches instead of partial matches',
             },
             {
-                displayName: 'Groß-/Kleinschreibung beachten',
+                displayName: 'Groß-/Kleinschreibung Beachten',
                 name: 'caseSensitive',
                 type: 'boolean',
                 default: false,
-                description: 'Beachtet Groß-/Kleinschreibung bei der Suche',
+                description: 'Whether to make the search case sensitive',
             },
         ],
     },
