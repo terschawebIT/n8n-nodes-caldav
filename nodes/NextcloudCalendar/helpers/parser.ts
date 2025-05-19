@@ -1,5 +1,6 @@
 import { DAVCalendarObject, DAVResponse } from 'tsdav';
-import { IEventResponse, IAttendee } from '../interfaces/event';
+import { IEventResponse } from '../interfaces/event';
+import { IAttendee } from '../interfaces/IAttendee';
 
 type CalendarObjectType = DAVCalendarObject | DAVResponse;
 
@@ -166,9 +167,12 @@ export function parseEventResults(events: CalendarObjectType[]): IEventResponse[
     }
 
     return eventResults.sort((a, b) => {
-        if (a?.start < b?.start) {
+        const startA = a?.start ? a.start : '';
+        const startB = b?.start ? b.start : '';
+        
+        if (startA < startB) {
             return -1;
-        } else if (a?.start > b?.start) {
+        } else if (startA > startB) {
             return 1;
         } else {
             return 0;

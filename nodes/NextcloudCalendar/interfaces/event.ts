@@ -1,4 +1,3 @@
-import { IDataObject, GenericValue } from 'n8n-workflow';
 import { IAttendee } from './IAttendee';
 
 export interface IEventBase {

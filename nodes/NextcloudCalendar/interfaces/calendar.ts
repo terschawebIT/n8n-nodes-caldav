@@ -1,4 +1,4 @@
-import { IAttendee } from './event';
+import { IAttendee } from './IAttendee';
 
 export interface ICalendarBase {
     displayName: string;
