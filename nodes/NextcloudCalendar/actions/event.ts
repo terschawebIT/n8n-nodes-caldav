@@ -82,12 +82,22 @@ export async function createEvent(
         credentials: credentials,
     };
 
+    // Spezielle Header für Einladungen
+    const headers: Record<string, string> = {};
+    if (data.attendees && data.attendees.length > 0) {
+        headers['X-Requested-With'] = 'XMLHttpRequest';
+        headers['Schedule-Reply'] = 'true';
+        headers['Prefer'] = 'return=representation';
+    }
+
     const response = await client.createCalendarObject({
         calendar,
         filename: `${event.uid}.ics`,
         iCalString: generateICalString(event),
+        headers: headers,
     });
 
+    // Verbesserte Rückgabe als eigenes Objekt
     const result = {
         success: true,
         message: 'Termin erfolgreich erstellt',
@@ -158,14 +168,45 @@ export async function updateEvent(
         throw new Error(`Event with ID "${data.eventId}" not found`);
     }
 
+    // Spezielle Header für Einladungen
+    const headers: Record<string, string> = {};
+    if (data.attendees && data.attendees.length > 0) {
+        headers['X-Requested-With'] = 'XMLHttpRequest';
+        headers['Schedule-Reply'] = 'true';
+        headers['Prefer'] = 'return=representation';
+    }
+
     const response = await client.updateCalendarObject({
         calendarObject: {
             ...events[0],
             data: generateICalString(updatedEvent),
         },
+        headers: headers,
     });
 
-    return response;
+    // Verbesserte Rückgabe
+    const result = {
+        success: true,
+        message: 'Termin erfolgreich aktualisiert',
+        uid: data.eventId,
+        details: {
+            title: updatedEvent.title,
+            start: updatedEvent.start,
+            end: updatedEvent.end,
+            attendeesCount: updatedEvent.attendees?.length || 0,
+        }
+    };
+
+    if (response && typeof response === 'object') {
+        if ('url' in response) {
+            (result as any).url = response.url;
+        }
+        if ('etag' in response) {
+            (result as any).etag = response.etag;
+        }
+    }
+
+    return result;
 }
 
 export async function deleteEvent(
@@ -240,6 +281,8 @@ function generateICalString(event: any) {
     let iCalString = `BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//n8n//Nextcloud Calendar Node//EN
+METHOD:REQUEST
+CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:${event.uid}
 DTSTAMP:${timestamp}
@@ -248,6 +291,7 @@ DTEND:${new Date(event.end).toISOString().replace(/[-:]/g, '').split('.')[0]}Z
 SUMMARY:${event.title}
 SEQUENCE:0
 STATUS:CONFIRMED
+TRANSP:OPAQUE
 `;
 
     if (event.description) {
@@ -260,11 +304,13 @@ STATUS:CONFIRMED
 
     iCalString += `CLASS:PUBLIC\n`;
     iCalString += `X-NC-GROUP-ID:${event.uid}\n`;
+    iCalString += `X-NEXTCLOUD-ATTENDEE-HANDLING:TRUE\n`;
     
     const credentials = event.credentials || {};
     const username = credentials.username || 'Organizer';
     const email = credentials.email || `${username}@example.com`;
-    iCalString += `ORGANIZER;CN=${username}:mailto:${email}\n`;
+    
+    iCalString += `ORGANIZER;CN=${username};RSVP=FALSE;PARTSTAT=ACCEPTED;ROLE=CHAIR:mailto:${email}\n`;
 
     if (event.attendees && event.attendees.length > 0) {
         event.attendees.forEach((attendee: any) => {
@@ -279,6 +325,7 @@ STATUS:CONFIRMED
             } else {
                 attendeeString += ';RSVP=FALSE';
             }
+            attendeeString += ';SCHEDULE-STATUS=1.1';
             attendeeString += `:mailto:${attendee.email}\n`;
             iCalString += attendeeString;
         });
