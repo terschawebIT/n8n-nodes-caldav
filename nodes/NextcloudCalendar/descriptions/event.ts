@@ -70,15 +70,8 @@ export const eventFields: INodeProperties[] = [
             loadOptionsMethod: 'getCalendars',
             loadOptionsDependsOn: [],
             loadOptionsGlobally: true,
-            modifyOptionProperties: {
-                ['value']: {
-                    type: 'string',
-                    canBeExpression: true,
-                    AIParametrizable: true
-                }
-            }
+            AIEnabled: true
         },
-        hint: 'Nutze $fromAI("calendarName") für KI-Unterstützung bei der Kalenderauswahl',
         displayOptions: {
             show: {
                 resource: ['event'],
@@ -114,7 +107,7 @@ export const eventFields: INodeProperties[] = [
         default: '',
         typeOptions: {
             canBeExpression: true,
-            AIParametrizable: true
+            AIEnabled: true
         },
         displayOptions: {
             show: {
@@ -159,7 +152,7 @@ export const eventFields: INodeProperties[] = [
         default: '',
         typeOptions: {
             canBeExpression: true,
-            AIParametrizable: true
+            AIEnabled: true
         },
         displayOptions: {
             show: {
@@ -176,7 +169,7 @@ export const eventFields: INodeProperties[] = [
         default: '',
         typeOptions: {
             canBeExpression: true,
-            AIParametrizable: true
+            AIEnabled: true
         },
         displayOptions: {
             show: {
@@ -316,7 +309,7 @@ export const eventFields: INodeProperties[] = [
                 default: '',
                 typeOptions: {
                     canBeExpression: true,
-                    AIParametrizable: true
+                    AIEnabled: true
                 },
                 description: 'Neue Beschreibung des Termins',
             },
@@ -334,7 +327,7 @@ export const eventFields: INodeProperties[] = [
                 default: '',
                 typeOptions: {
                     canBeExpression: true,
-                    AIParametrizable: true
+                    AIEnabled: true
                 },
                 description: 'Neuer Ort des Termins',
             },
@@ -352,7 +345,7 @@ export const eventFields: INodeProperties[] = [
                 default: '',
                 typeOptions: {
                     canBeExpression: true,
-                    AIParametrizable: true
+                    AIEnabled: true
                 },
                 description: 'Neuer Titel des Termins',
             },

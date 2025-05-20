@@ -183,7 +183,7 @@ Diese Integration nutzt die CalDAV-Schnittstelle von Nextcloud und ist mit der R
 
 ## KI-Unterstützung
 
-Dieser Knoten unterstützt die KI-Funktionen von n8n, sodass der AI Agent den passenden Kalender automatisch auswählen kann:
+Dieser Knoten unterstützt die KI-Funktionen von n8n, sodass der AI Agent den passenden Kalender und andere Felder automatisch auswählen kann:
 
 ### Voraussetzungen für KI-Unterstützung:
 
@@ -198,10 +198,7 @@ Dieser Knoten unterstützt die KI-Funktionen von n8n, sodass der AI Agent den pa
    n8n start
    ```
 
-3. Bei Verwendung des AI Agent Tools sollte die Kalenderauswahl automatisch funktionieren, oder Sie können explizit den $fromAI()-Ausdruck verwenden:
-   ```
-   {{ $fromAI("calendarName", "Der Name des Kalenders") }}
-   ```
+3. Bei Feldern mit KI-Unterstützung erscheint ein Stern-Symbol (⭐) rechts neben dem Eingabefeld. Klicken Sie auf dieses Symbol, damit der AI-Agent das Feld automatisch ausfüllt.
 
 ### Unterstützte KI-Felder:
 
