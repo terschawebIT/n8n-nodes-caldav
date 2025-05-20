@@ -42,10 +42,13 @@ export const calendarFields: INodeProperties[] = [
         displayName: 'Kalender Name Oder Name or ID',
         name: 'calendarName',
         type: 'options',
+        // @ts-ignore
+        AIEnabled: true,
         typeOptions: {
             loadOptionsMethod: 'getCalendars',
             loadOptionsDependsOn: [],
             loadOptionsGlobally: true,
+            canBeParametrized: true,
             modifyOptionProperties: {
                 value: {
                     type: 'string',
