@@ -96,6 +96,28 @@ export class NextcloudCalendar implements INodeType {
                 }
             },
         },
+        resourceLocator: {
+            async getCalendars(this: ILoadOptionsFunctions, filter?: string): Promise<INodePropertyOptions[]> {
+                try {
+                    const calendars = await calendarActions.getCalendars(this);
+                    if (!calendars || calendars.length === 0) {
+                        return [{ name: 'Keine Kalender Gefunden', value: '' }];
+                    }
+                    let calList = calendars as { displayName: string }[];
+                    if (filter && filter.trim().length > 0) {
+                        const normalized = filter.toLowerCase();
+                        calList = calList.filter(c => (c.displayName || '').toLowerCase().includes(normalized));
+                    }
+                    return calList.map((calendar) => ({
+                        name: calendar.displayName as string,
+                        value: calendar.displayName as string,
+                    }));
+                } catch (error) {
+                    console.error('Fehler beim Laden der Kalender:', error);
+                    return [{ name: 'Fehler Beim Laden Der Kalender', value: '' }];
+                }
+            },
+        },
     };
 
     async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
