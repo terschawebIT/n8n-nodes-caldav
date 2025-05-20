@@ -66,13 +66,18 @@ export const eventFields: INodeProperties[] = [
         displayName: 'Kalender Name Oder Name or ID',
         name: 'calendarName',
         type: 'options',
-        // @ts-ignore - Eigenschaft wird von neuen n8n-Versionen unterstützt
-        AIParametrizable: true,
         typeOptions: {
             loadOptionsMethod: 'getCalendars',
             loadOptionsDependsOn: [],
             loadOptionsGlobally: true,
-            canBeExpression: true,
+            modifyOptionProperties: {
+                value: {
+                    // @ts-ignore
+                    AIParametrizable: true,
+                    type: 'string',
+                    canBeExpression: true,
+                },
+            },
         },
         default: '',
         required: true,
