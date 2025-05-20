@@ -1,4 +1,5 @@
 import { IAttendee } from './IAttendee';
+import { IDataObject } from 'n8n-workflow';
 
 export interface IEventBase {
     title: string;
@@ -18,7 +19,7 @@ export interface IEventUpdate extends Partial<IEventBase> {
     eventId: string;
 }
 
-export interface IEventResponse {
+export interface IEventResponse extends IDataObject {
     uid: string;
     url?: string;
     etag?: string;

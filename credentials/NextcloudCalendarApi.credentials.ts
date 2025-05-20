@@ -10,6 +10,7 @@ import {
 export class NextcloudCalendarApi implements ICredentialType {
 	name = 'nextcloudCalendarApi';
 	displayName = 'Nextcloud Calendar API';
+	documentationUrl = 'httpsDocsNextcloudComServerLatestDeveloperManualApiCalendarIndexHtml';
 	properties: INodeProperties[] = [
 		{
 			displayName: 'Nextcloud URL',
@@ -28,7 +29,7 @@ export class NextcloudCalendarApi implements ICredentialType {
             description: 'Ihr Nextcloud Benutzername',
         },
         {
-            displayName: 'Passwort oder App-Passwort',
+            displayName: 'Passwort Oder App-Passwort',
             name: 'password',
             type: 'string',
             typeOptions: {

@@ -4,6 +4,24 @@ import { IEventCreate, IEventUpdate, IEventResponse } from '../interfaces/event'
 import { findCalendar } from './calendar';
 import { parseICalEvent } from '../helpers/parser';
 
+interface IAttendeeICal {
+    displayName?: string;
+    role?: string;
+    rsvp?: boolean;
+    email?: string;
+}
+
+interface IEventICal {
+    uid?: string;
+    title?: string;
+    start?: string | Date;
+    end?: string | Date;
+    description?: string;
+    location?: string;
+    attendees?: IAttendeeICal[];
+    credentials?: { username?: string; email?: string };
+}
+
 export async function getEvents(
     context: IExecuteFunctions,
     calendarName: string,
@@ -112,10 +130,10 @@ export async function createEvent(
 
     if (response && typeof response === 'object') {
         if ('url' in response) {
-            (result as any).url = response.url;
+            (result as { url?: string; etag?: string }).url = response.url;
         }
         if ('etag' in response) {
-            (result as any).etag = response.etag;
+            (result as { url?: string; etag?: string }).etag = String(response.etag);
         }
     }
 
@@ -199,10 +217,10 @@ export async function updateEvent(
 
     if (response && typeof response === 'object') {
         if ('url' in response) {
-            (result as any).url = response.url;
+            (result as { url?: string; etag?: string }).url = response.url;
         }
         if ('etag' in response) {
-            (result as any).etag = response.etag;
+            (result as { url?: string; etag?: string }).etag = String(response.etag);
         }
     }
 
@@ -276,8 +294,10 @@ export async function searchEvents(
     });
 }
 
-function generateICalString(event: any) {
+function generateICalString(event: IEventICal) {
     const timestamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    const startDate = event.start ? new Date(event.start) : new Date();
+    const endDate = event.end ? new Date(event.end) : new Date(startDate.getTime() + 60 * 60 * 1000);
     let iCalString = `BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//n8n//Nextcloud Calendar Node//EN
@@ -286,8 +306,8 @@ CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:${event.uid}
 DTSTAMP:${timestamp}
-DTSTART:${new Date(event.start).toISOString().replace(/[-:]/g, '').split('.')[0]}Z
-DTEND:${new Date(event.end).toISOString().replace(/[-:]/g, '').split('.')[0]}Z
+DTSTART:${startDate.toISOString().replace(/[-:]/g, '').split('.')[0]}Z
+DTEND:${endDate.toISOString().replace(/[-:]/g, '').split('.')[0]}Z
 SUMMARY:${event.title}
 SEQUENCE:0
 STATUS:CONFIRMED
@@ -305,17 +325,17 @@ TRANSP:OPAQUE
     iCalString += `CLASS:PUBLIC\n`;
     iCalString += `X-NC-GROUP-ID:${event.uid}\n`;
     iCalString += `X-NEXTCLOUD-ATTENDEE-HANDLING:TRUE\n`;
-    
-    const credentials = event.credentials || {};
-    const username = credentials.username || 'Organizer';
-    const email = credentials.email || `${username}@example.com`;
-    
+
+    const credentials = event.credentials || { username: 'Organizer', email: undefined };
+    const username = typeof credentials.username === 'string' ? credentials.username : 'Organizer';
+    const email = typeof credentials.email === 'string' ? credentials.email : `${username}@example.com`;
+
     iCalString += `ORGANIZER;CN=${username};RSVP=FALSE;PARTSTAT=ACCEPTED;ROLE=CHAIR:mailto:${email}\n`;
 
     if (event.attendees && event.attendees.length > 0) {
-        event.attendees.forEach((attendee: any) => {
+        event.attendees.forEach((attendee) => {
             let attendeeString = 'ATTENDEE;CUTYPE=INDIVIDUAL';
-            if (attendee.displayName) {
+            if (typeof attendee.displayName === 'string') {
                 attendeeString += `;CN=${attendee.displayName}`;
             }
             attendeeString += `;ROLE=${attendee.role || 'REQ-PARTICIPANT'}`;
@@ -326,7 +346,7 @@ TRANSP:OPAQUE
                 attendeeString += ';RSVP=FALSE';
             }
             attendeeString += ';SCHEDULE-STATUS=1.1';
-            attendeeString += `:mailto:${attendee.email}\n`;
+            attendeeString += `:mailto:${typeof attendee.email === 'string' ? attendee.email : ''}\n`;
             iCalString += attendeeString;
         });
     }

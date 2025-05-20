@@ -44,7 +44,7 @@ export const calendarFields: INodeProperties[] = [
         type: 'resourceLocator',
         default: '',
         required: true,
-        description: 'Wählen Sie einen Kalender aus der Liste oder geben Sie dessen ID an.',
+        description: 'Wählen Sie einen Kalender aus der Liste oder geben Sie dessen ID an',
         modes: [
             {
                 displayName: 'Liste',
@@ -78,7 +78,7 @@ export const calendarFields: INodeProperties[] = [
                 operation: ['delete'],
             },
         },
-        // @ts-ignore
+        // @ts-expect-error: AIEnabled ist kein Standardfeld, wird aber von n8n AI genutzt
         AIEnabled: true,
     },
 

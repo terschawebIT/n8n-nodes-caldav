@@ -37,7 +37,7 @@ export function formatNextcloudEvent(eventData: IDataObject): IDataObject {
     return formattedEvent;
 }
 
-export function parseNextcloudResponse(response: any): IDataObject {
+export function parseNextcloudResponse(response: IDataObject): IDataObject {
     if (!response) {
         throw new Error('Keine Antwort vom Server erhalten');
     }

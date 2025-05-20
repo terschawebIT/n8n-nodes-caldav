@@ -52,7 +52,7 @@ export class NextcloudCalendar implements INodeType {
             },
         ],
         usableAsTool: true,
-        // @ts-ignore
+        // @ts-expect-error: AIEnabled ist kein Standardfeld, wird aber von n8n AI genutzt
         aiEnabled: true,
         properties: [
             // Ressource: Kalender oder Termin
@@ -81,7 +81,7 @@ export class NextcloudCalendar implements INodeType {
                     if (!calendars || calendars.length === 0) {
                         return [{ name: 'Keine Kalender Gefunden', value: '' }];
                     }
-                    let calList = calendars as any[];
+                    let calList = calendars as { displayName: string }[];
                     if (filter && filter.trim().length > 0) {
                         const normalized = filter.toLowerCase();
                         calList = calList.filter(c => (c.displayName || '').toLowerCase().includes(normalized));
@@ -193,7 +193,7 @@ export class NextcloudCalendar implements INodeType {
                         // Einladungen aktivieren, wenn das Flag gesetzt ist
                         const sendInvitations = this.getNodeParameter('sendInvitations', i, false) as boolean;
                         if (sendInvitations) {
-                            (eventData as any).sendInvitations = true;
+                            (eventData as { sendInvitations?: boolean }).sendInvitations = true;
                         }
 
                         const response = await eventActions.createEvent(this, eventData);
@@ -310,8 +310,7 @@ export class NextcloudCalendar implements INodeType {
                         // Einladungen aktivieren, wenn das Flag gesetzt ist
                         const sendInvitations = this.getNodeParameter('sendInvitations', i, false) as boolean;
                         if (sendInvitations) {
-                            // Flag für Einladungen setzen
-                            (updateData as any).sendInvitations = true;
+                            (updateData as { sendInvitations?: boolean }).sendInvitations = true;
                         }
 
                         const response = await eventActions.updateEvent(this, updateData);
@@ -408,7 +407,7 @@ export class NextcloudCalendar implements INodeType {
                         console.log(`${events.length} Termine im angegebenen Zeitraum gefunden, filtere nach Suchbegriff`);
 
                         // Filtere die Ergebnisse basierend auf den Suchoptionen
-                        let filteredEvents = events.filter(event => {
+                        const filteredEvents = events.filter(event => {
                             // Bereite den Suchbegriff und die zu durchsuchenden Felder vor
                             const caseSensitive = !!searchOptions.caseSensitive;
                             const exactMatch = !!searchOptions.exactMatch;
