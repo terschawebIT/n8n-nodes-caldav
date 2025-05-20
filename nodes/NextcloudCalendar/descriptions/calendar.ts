@@ -47,7 +47,7 @@ export const calendarFields: INodeProperties[] = [
             loadOptionsDependsOn: [],
             loadOptionsGlobally: true,
             modifyOptionProperties: {
-                ['value']: {
+                value: {
                     type: 'string',
                     canBeExpression: true,
                     AIParametrizable: true
