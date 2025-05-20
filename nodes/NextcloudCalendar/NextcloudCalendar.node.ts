@@ -52,6 +52,8 @@ export class NextcloudCalendar implements INodeType {
             },
         ],
         usableAsTool: true,
+        // @ts-ignore - aiEnabled existiert in neueren n8n-Versionen
+        aiEnabled: true,
         properties: [
             // Ressource: Kalender oder Termin
             resources[0],

@@ -65,21 +65,20 @@ export const eventFields: INodeProperties[] = [
     {
         displayName: 'Kalender Name Oder Name or ID',
         name: 'calendarName',
-        type: 'options',
+        type: 'string',
+        default: '',
+        required: true,
         typeOptions: {
-            loadOptionsMethod: 'getCalendars',
-            loadOptionsDependsOn: [],
-            loadOptionsGlobally: true,
-            AIEnabled: true
+            canBeExpression: true
         },
+        // @ts-ignore
+        AIEnabled: true,
+        description: 'Der Kalender, in dem der Termin erstellt oder gesucht werden soll. Sie können den Namen direkt eingeben oder den KI-Assistenten verwenden.',
         displayOptions: {
             show: {
                 resource: ['event'],
             },
         },
-        default: '',
-        required: true,
-        description: 'Der Kalender, in dem der Termin erstellt oder gesucht werden soll. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
     },
     
     // Event-ID für Operationen, die eine Event-ID benötigen
