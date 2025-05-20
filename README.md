@@ -179,4 +179,35 @@ Diese Integration nutzt die CalDAV-Schnittstelle von Nextcloud und ist mit der R
 ## 0.1.0
 2023-04-28
 
-* Added Calendar → Get Many 
+* Added Calendar → Get Many
+
+## KI-Unterstützung
+
+Dieser Knoten unterstützt die KI-Funktionen von n8n, sodass der AI Agent den passenden Kalender automatisch auswählen kann:
+
+### Voraussetzungen für KI-Unterstützung:
+
+1. Setzen Sie folgende Umgebungsvariable in Ihrer n8n-Installation:
+   ```bash
+   export N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true
+   ```
+   (Für Windows: `set N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true`)
+
+2. Starten Sie anschließend n8n neu:
+   ```bash
+   n8n start
+   ```
+
+3. Bei Verwendung des AI Agent Tools sollte die Kalenderauswahl automatisch funktionieren, oder Sie können explizit den $fromAI()-Ausdruck verwenden:
+   ```
+   {{ $fromAI("calendarName", "Der Name des Kalenders") }}
+   ```
+
+### Unterstützte KI-Felder:
+
+- Kalender-Name (bei der Auswahl des Kalenders)
+- Titel eines Termins
+- Beschreibung eines Termins 
+- Ort eines Termins
+
+## Kalender-Operationen 

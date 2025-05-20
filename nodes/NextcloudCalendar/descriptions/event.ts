@@ -78,6 +78,7 @@ export const eventFields: INodeProperties[] = [
                 }
             }
         },
+        hint: 'Nutze $fromAI("calendarName") für KI-Unterstützung bei der Kalenderauswahl',
         displayOptions: {
             show: {
                 resource: ['event'],
@@ -85,7 +86,7 @@ export const eventFields: INodeProperties[] = [
         },
         default: '',
         required: true,
-        description: 'Wählen Sie aus der Liste oder geben Sie eine ID mit einer <a href="https://docs.n8n.io/code/expressions/">Expression</a> an. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+        description: 'Der Kalender, in dem der Termin erstellt oder gesucht werden soll. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
     },
     
     // Event-ID für Operationen, die eine Event-ID benötigen
