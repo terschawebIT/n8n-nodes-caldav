@@ -39,35 +39,49 @@ export const calendarOperations: INodeProperties[] = [
 export const calendarFields: INodeProperties[] = [
     // Kalender-Name für Kalender löschen
     {
-        displayName: 'Kalender Name Oder Name or ID',
+        displayName: 'Kalender',
         name: 'calendarName',
-        type: 'options',
-        // @ts-ignore
-        AIEnabled: true,
-        typeOptions: {
-            loadOptionsMethod: 'getCalendars',
-            loadOptionsDependsOn: [],
-            loadOptionsGlobally: true,
-            canBeParametrized: true,
-            modifyOptionProperties: {
-                value: {
-                    type: 'string',
-                    canBeExpression: true,
-                    AIEnabled: true
-                }
-            }
-        },
+        type: 'resourceLocator',
+        default: '',
+        required: true,
+        description: 'Wählen Sie einen Kalender aus der Liste oder geben Sie dessen ID an.',
+        modes: [
+            {
+                displayName: 'Liste',
+                name: 'list',
+                type: 'list',
+                typeOptions: {
+                    searchListMethod: 'getCalendars',
+                    searchable: true,
+                    searchFilterRequired: false,
+                },
+            },
+            {
+                displayName: 'ID',
+                name: 'id',
+                type: 'string',
+                placeholder: 'Kalender-ID',
+                validation: [
+                    {
+                        type: 'regex',
+                        properties: {
+                            regex: '^.+$',
+                            errorMessage: 'Bitte eine gültige Kalender-ID eingeben',
+                        },
+                    },
+                ],
+            },
+        ],
         displayOptions: {
             show: {
                 resource: ['calendar'],
                 operation: ['delete'],
             },
         },
-        default: '',
-        required: true,
-        description: 'Wählen Sie aus der Liste oder geben Sie eine ID mit einer <a href="https://docs.n8n.io/code/expressions/">Expression</a> an. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+        // @ts-ignore
+        AIEnabled: true,
     },
-    
+
     // Kalender-Name für Erstellung
     {
         displayName: 'Kalender Name',
@@ -87,7 +101,7 @@ export const calendarFields: INodeProperties[] = [
         },
         description: 'Name des neuen Kalenders',
     },
-    
+
     // Kalender-Einstellungen
     {
         displayName: 'Kalender Einstellungen',
@@ -122,4 +136,4 @@ export const calendarFields: INodeProperties[] = [
             },
         ],
     },
-]; 
+];

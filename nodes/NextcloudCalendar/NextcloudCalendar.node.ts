@@ -57,13 +57,13 @@ export class NextcloudCalendar implements INodeType {
         properties: [
             // Ressource: Kalender oder Termin
             resources[0],
-            
+
             // Kalender-Operationen
             calendarOperations[0],
-            
+
             // Event-Operationen
             eventOperations[0],
-            
+
             // Feld-Definitionen
             ...calendarFields,
             ...eventFields,
@@ -74,13 +74,19 @@ export class NextcloudCalendar implements INodeType {
         loadOptions: {
             async getCalendars(
                 this: ILoadOptionsFunctions,
+                filter?: string,
             ): Promise<INodePropertyOptions[]> {
                 try {
                     const calendars = await calendarActions.getCalendars(this);
                     if (!calendars || calendars.length === 0) {
                         return [{ name: 'Keine Kalender Gefunden', value: '' }];
                     }
-                    return calendars.map((calendar) => ({
+                    let calList = calendars as any[];
+                    if (filter && filter.trim().length > 0) {
+                        const normalized = filter.toLowerCase();
+                        calList = calList.filter(c => (c.displayName || '').toLowerCase().includes(normalized));
+                    }
+                    return calList.map((calendar) => ({
                         name: calendar.displayName as string,
                         value: calendar.displayName as string,
                     }));
@@ -259,7 +265,7 @@ export class NextcloudCalendar implements INodeType {
                         const updateFields = this.getNodeParameter('updateFields', i) as IDataObject;
                         const calendarName = this.getNodeParameter('calendarName', i) as string;
                         const eventId = this.getNodeParameter('eventId', i) as string;
-                        
+
                         // Validiere Start- und Endzeit, wenn beide angegeben sind
                         if (updateFields.start && updateFields.end) {
                             if (new Date(updateFields.end as string) <= new Date(updateFields.start as string)) {
@@ -268,7 +274,7 @@ export class NextcloudCalendar implements INodeType {
                                 });
                             }
                         }
-                        
+
                         const updateData: IEventUpdate = {
                             calendarName,
                             eventId,
@@ -300,14 +306,14 @@ export class NextcloudCalendar implements INodeType {
                                 });
                             }
                         }
-                        
+
                         // Einladungen aktivieren, wenn das Flag gesetzt ist
                         const sendInvitations = this.getNodeParameter('sendInvitations', i, false) as boolean;
                         if (sendInvitations) {
                             // Flag für Einladungen setzen
                             (updateData as any).sendInvitations = true;
                         }
-                        
+
                         const response = await eventActions.updateEvent(this, updateData);
                         if (!response) {
                             throw new NodeOperationError(this.getNode(), 'Termin konnte nicht aktualisiert werden', {
@@ -330,14 +336,14 @@ export class NextcloudCalendar implements INodeType {
                         end.setMonth(end.getMonth() + 1); // Standardmäßig einen Monat in die Zukunft
 
                         console.log(`Suche Termine in Kalender "${calendarName}" von ${now.toISOString()} bis ${end.toISOString()}`);
-                        
+
                         const response = await eventActions.getEvents(
                             this,
                             calendarName,
                             now.toISOString(),
                             end.toISOString(),
                         );
-                        
+
                         if (!response) {
                             console.log('Keine Antwort vom Server erhalten');
                             throw new NodeOperationError(this.getNode(), 'Keine Antwort vom Server', {
@@ -346,18 +352,18 @@ export class NextcloudCalendar implements INodeType {
                         }
 
                         console.log(`Anzahl gefundener Termine: ${Array.isArray(response) ? response.length : 0}`);
-                        
+
                         if (!Array.isArray(response) || response.length === 0) {
                             // Auch bei leerer Liste ein Ergebnis zurückgeben
-                            returnData.push({ 
+                            returnData.push({
                                 success: true,
                                 operation: 'nextEvents',
                                 resource: 'event',
                                 message: 'Keine Termine im angegebenen Zeitraum gefunden',
-                                data: { 
+                                data: {
                                     events: [],
                                     message: 'Keine Termine im angegebenen Zeitraum gefunden'
-                                } 
+                                }
                             });
                         } else {
                             // Termine zurückgeben und auf maxEvents beschränken
@@ -368,17 +374,17 @@ export class NextcloudCalendar implements INodeType {
                                     console.log(`Verarbeite Termin: ${JSON.stringify(parsed)}`);
                                     return parsed;
                                 });
-                            
-                            returnData.push({ 
+
+                            returnData.push({
                                 success: true,
                                 operation: 'nextEvents',
                                 resource: 'event',
                                 message: 'Termine erfolgreich abgerufen',
-                                data: { 
+                                data: {
                                     events: parsedEvents,
                                     count: parsedEvents.length,
                                     totalCount: response.length
-                                } 
+                                }
                             });
                         }
                     } else if (operation === 'search') {
@@ -387,32 +393,32 @@ export class NextcloudCalendar implements INodeType {
                         const start = this.getNodeParameter('start', i) as string;
                         const end = this.getNodeParameter('end', i) as string;
                         const searchOptions = this.getNodeParameter('searchOptions', i, {}) as IDataObject;
-                        
+
                         console.log(`Suche nach Terminen in Kalender "${calendarName}" mit Suchbegriff "${searchTerm}" im Zeitraum ${start} bis ${end}`);
-                        
+
                         // Zunächst alle Termine im Zeitraum abrufen
                         const events = await eventActions.getEvents(this, calendarName, start, end);
-                        
+
                         if (!events || !Array.isArray(events)) {
                             throw new NodeOperationError(this.getNode(), 'Keine Termine gefunden oder ungültige Antwort vom Server', {
                                 itemIndex: i,
                             });
                         }
-                        
+
                         console.log(`${events.length} Termine im angegebenen Zeitraum gefunden, filtere nach Suchbegriff`);
-                        
+
                         // Filtere die Ergebnisse basierend auf den Suchoptionen
                         let filteredEvents = events.filter(event => {
                             // Bereite den Suchbegriff und die zu durchsuchenden Felder vor
                             const caseSensitive = !!searchOptions.caseSensitive;
                             const exactMatch = !!searchOptions.exactMatch;
                             const titlesOnly = !!searchOptions.titlesOnly;
-                            
+
                             let termToSearch = searchTerm;
                             if (!caseSensitive) {
                                 termToSearch = termToSearch.toLowerCase();
                             }
-                            
+
                             // Prüfe den Titel
                             let titleMatch = false;
                             if (event.title) {
@@ -420,54 +426,54 @@ export class NextcloudCalendar implements INodeType {
                                 if (!caseSensitive) {
                                     title = title.toLowerCase();
                                 }
-                                
+
                                 if (exactMatch) {
                                     titleMatch = title === termToSearch;
                                 } else {
                                     titleMatch = title.includes(termToSearch);
                                 }
                             }
-                            
+
                             // Wenn nur in Titeln gesucht werden soll oder bereits ein Treffer gefunden wurde
                             if (titlesOnly || titleMatch) {
                                 return titleMatch;
                             }
-                            
+
                             // Prüfe Beschreibung und Ort
                             let descriptionMatch = false;
                             let locationMatch = false;
-                            
+
                             if (event.description) {
                                 let description = event.description;
                                 if (!caseSensitive) {
                                     description = description.toLowerCase();
                                 }
-                                
+
                                 if (exactMatch) {
                                     descriptionMatch = description === termToSearch;
                                 } else {
                                     descriptionMatch = description.includes(termToSearch);
                                 }
                             }
-                            
+
                             if (event.location) {
                                 let location = event.location;
                                 if (!caseSensitive) {
                                     location = location.toLowerCase();
                                 }
-                                
+
                                 if (exactMatch) {
                                     locationMatch = location === termToSearch;
                                 } else {
                                     locationMatch = location.includes(termToSearch);
                                 }
                             }
-                            
+
                             return titleMatch || descriptionMatch || locationMatch;
                         });
-                        
+
                         console.log(`${filteredEvents.length} Termine gefunden, die dem Suchbegriff entsprechen`);
-                        
+
                         if (filteredEvents.length === 0) {
                             returnData.push({
                                 success: true,
@@ -483,7 +489,7 @@ export class NextcloudCalendar implements INodeType {
                             });
                         } else {
                             const parsedEvents = filteredEvents.map(event => parseNextcloudResponse(event));
-                            
+
                             returnData.push({
                                 success: true,
                                 operation: 'search',
