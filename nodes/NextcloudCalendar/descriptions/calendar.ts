@@ -50,7 +50,7 @@ export const calendarFields: INodeProperties[] = [
                 value: {
                     type: 'string',
                     canBeExpression: true,
-                    AIParametrizable: true
+                    AIEnabled: true
                 }
             }
         },
@@ -74,7 +74,7 @@ export const calendarFields: INodeProperties[] = [
         default: '',
         typeOptions: {
             canBeExpression: true,
-            AIParametrizable: true
+            AIEnabled: true
         },
         displayOptions: {
             show: {
@@ -113,7 +113,7 @@ export const calendarFields: INodeProperties[] = [
                 default: '',
                 typeOptions: {
                     canBeExpression: true,
-                    AIParametrizable: true
+                    AIEnabled: true
                 },
                 description: 'Beschreibung des Kalenders',
             },

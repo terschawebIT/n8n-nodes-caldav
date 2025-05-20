@@ -73,7 +73,7 @@ export const eventFields: INodeProperties[] = [
             modifyOptionProperties: {
                 value: {
                     // @ts-ignore
-                    AIParametrizable: true,
+                    AIEnabled: true,
                     type: 'string',
                     canBeExpression: true,
                 },
